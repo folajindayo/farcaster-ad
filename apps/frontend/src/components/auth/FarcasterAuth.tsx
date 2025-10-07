@@ -1,18 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { useRouter } from 'next/navigation'
+import { SignInButton, useProfile } from '@farcaster/auth-kit'
 
 interface FarcasterAuthProps {
   onSuccess?: (userData: any) => void
 }
 
 export default function FarcasterAuth({ onSuccess }: FarcasterAuthProps) {
-  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const { isAuthenticated, profile } = useProfile()
 
   // Check if user is already authenticated
   useEffect(() => {
@@ -29,34 +30,31 @@ export default function FarcasterAuth({ onSuccess }: FarcasterAuthProps) {
     }
   }, [onSuccess, router])
 
-  const handleFarcasterSignIn = async () => {
+  // Handle successful Farcaster authentication
+  const handleSuccess = useCallback(async (res: any) => {
     try {
-      setLoading(true)
       setError(null)
 
-      // Step 1: Get nonce from server
-      const nonceResponse = await fetch('/api/auth/nonce')
-      const { nonce } = await nonceResponse.json()
+      // The response contains the user's Farcaster profile and signature
+      const { fid, username, displayName, pfpUrl, custody, verifications } = res.profile
+      const { message, signature } = res
 
-      // Step 2: Request Farcaster signature
-      // In a real app, this would use the Farcaster SDK
-      // For now, we'll simulate this with a mock
-      const message = `Sign in to Farcaster Ad Rental with nonce: ${nonce}`
-      
-      // Simulate Farcaster signature (in real app, this would use the SDK)
-      const mockSignature = 'mock_signature_' + Math.random().toString(36).substring(2, 15)
-      const mockFid = 123456 // Mock Farcaster ID
-      
-      // Step 3: Verify signature with our backend
-      const verifyResponse = await fetch('/api/auth/verify', {
+      // Verify signature with our backend
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
+      const verifyResponse = await fetch(`${backendUrl}/api/auth/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           message,
-          signature: mockSignature,
-          fid: mockFid
+          signature,
+          fid,
+          username,
+          displayName,
+          pfpUrl,
+          custody,
+          verifications
         })
       })
       
@@ -66,11 +64,11 @@ export default function FarcasterAuth({ onSuccess }: FarcasterAuthProps) {
         throw new Error(authData.message || 'Authentication failed')
       }
       
-      // Step 4: Store token and user data
+      // Store token and user data
       localStorage.setItem('token', authData.token)
       localStorage.setItem('user', JSON.stringify(authData.user))
       
-      // Step 5: Call onSuccess or redirect
+      // Call onSuccess or redirect
       if (onSuccess) {
         onSuccess(authData.user)
       } else {
@@ -79,10 +77,8 @@ export default function FarcasterAuth({ onSuccess }: FarcasterAuthProps) {
     } catch (err) {
       console.error('Farcaster auth error:', err)
       setError(err instanceof Error ? err.message : 'Authentication failed')
-    } finally {
-      setLoading(false)
     }
-  }
+  }, [onSuccess, router])
 
   return (
     <Card className="w-full max-w-md bg-neutral-900 border-neutral-700">
@@ -110,13 +106,10 @@ export default function FarcasterAuth({ onSuccess }: FarcasterAuthProps) {
         </div>
       </CardContent>
       <CardFooter>
-        <Button 
-          onClick={handleFarcasterSignIn} 
-          disabled={loading}
-          className="w-full bg-orange-500 hover:bg-orange-600 text-black font-bold"
-        >
-          {loading ? 'Connecting...' : 'Connect Farcaster'}
-        </Button>
+        <SignInButton
+          onSuccess={handleSuccess}
+          onError={(err) => setError(err?.message || 'Authentication failed')}
+        />
       </CardFooter>
     </Card>
   )

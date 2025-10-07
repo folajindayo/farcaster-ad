@@ -1,51 +1,64 @@
-import { farcasterClient, validateFarcasterSignature } from '../config/farcaster';
+import { createAppClient, viemConnector } from '@farcaster/auth-client';
 import { User } from '../models';
 import { Request, Response, NextFunction } from 'express';
 
+// Create Farcaster Auth Client
+const appClient = createAppClient({
+  ethereum: viemConnector(),
+});
+
 // Generate a nonce for Farcaster authentication
 export const generateNonce = () => {
-  return Math.floor(Math.random() * 1000000).toString();
+  return Math.floor(Math.random() * 1000000000000).toString();
 };
 
 // Verify Farcaster authentication and create or update user
-export const verifyFarcasterAuth = async (message: string, signature: string, fid: number) => {
+export const verifyFarcasterAuth = async (
+  message: string, 
+  signature: string, 
+  fid: number,
+  username?: string,
+  displayName?: string,
+  pfpUrl?: string,
+  custody?: string,
+  verifications?: string[]
+) => {
   try {
-    // Validate the signature
-    const isValid = await validateFarcasterSignature(message, signature, fid);
-    
-    if (!isValid) {
+    // Verify the signature using Farcaster Auth Client
+    const { success, fid: verifiedFid } = await appClient.verifySignInMessage({
+      message,
+      signature,
+      domain: process.env.DOMAIN || 'farcaster-ad-rental.vercel.app',
+      nonce: message.split('nonce: ')[1] || generateNonce(),
+    });
+
+    if (!success || verifiedFid !== fid) {
       throw new Error('Invalid Farcaster signature');
     }
-
-    // For now, create a mock user profile - implement proper Farcaster user lookup
-    const userProfile = {
-      username: `user_${fid}`,
-      displayName: `User ${fid}`,
-      pfp: '',
-      verifications: []
-    };
 
     // Find or create user in our database
     let user = await User.findOne({ farcasterId: fid.toString() });
     
     if (!user) {
-      // Create new user
+      // Create new user with real Farcaster data
       user = await User.create({
         farcasterId: fid.toString(),
-        walletAddress: userProfile.verifications?.[0] || '',
-        username: userProfile.username || `user_${fid}`,
-        displayName: userProfile.displayName || `User ${fid}`,
-        pfpUrl: userProfile.pfp || '',
+        walletAddress: verifications?.[0] || custody || '',
+        username: username || `user_${fid}`,
+        displayName: displayName || `User ${fid}`,
+        pfpUrl: pfpUrl || '',
         role: 'host', // Default role is host
         isOptedIn: false, // Not opted in by default
       });
     } else {
-      // Update existing user
-      user.username = userProfile.username || user.username;
-      user.displayName = userProfile.displayName || user.displayName;
-      user.pfpUrl = userProfile.pfp || user.pfpUrl;
-      if (userProfile.verifications?.[0] && !user.walletAddress) {
-        user.walletAddress = userProfile.verifications[0];
+      // Update existing user with latest Farcaster data
+      if (username) user.username = username;
+      if (displayName) user.displayName = displayName;
+      if (pfpUrl) user.pfpUrl = pfpUrl;
+      if (verifications?.[0] && !user.walletAddress) {
+        user.walletAddress = verifications[0];
+      } else if (custody && !user.walletAddress) {
+        user.walletAddress = custody;
       }
       await user.save();
     }

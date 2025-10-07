@@ -71,13 +71,31 @@ router.get('/nonce', (req, res) => {
  */
 router.post('/verify', async (req, res) => {
   try {
-    const { message, signature, fid } = req.body;
+    const { 
+      message, 
+      signature, 
+      fid, 
+      username, 
+      displayName, 
+      pfpUrl, 
+      custody, 
+      verifications 
+    } = req.body;
 
     if (!message || !signature || !fid) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    const result = await verifyFarcasterAuth(message, signature, fid);
+    const result = await verifyFarcasterAuth(
+      message, 
+      signature, 
+      fid,
+      username,
+      displayName,
+      pfpUrl,
+      custody,
+      verifications
+    );
     res.json(result);
   } catch (error) {
     console.error('Error verifying auth:', error);
