@@ -105,11 +105,16 @@ export default function FarcasterAuth({ onSuccess }: FarcasterAuthProps) {
           )}
         </div>
       </CardContent>
-      <CardFooter>
-        <SignInButton
-          onSuccess={handleSuccess}
-          onError={(err) => setError(err?.message || 'Authentication failed')}
-        />
+      <CardFooter className="flex justify-center">
+        <div className="w-full">
+          <SignInButton
+            onSuccess={handleSuccess}
+            onError={(err) => {
+              console.error('Farcaster auth error:', err)
+              setError(err?.message || 'Authentication failed')
+            }}
+          />
+        </div>
       </CardFooter>
     </Card>
   )
