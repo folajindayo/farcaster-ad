@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import RoleBasedDashboard from '@/components/role-based/RoleBasedDashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 interface Campaign {
   _id: string;
@@ -500,10 +501,12 @@ export default function FarcasterAdDashboard() {
   }, []);
 
   return (
-    <RoleBasedDashboard
-      userRole={userRole}
-      sidebarCollapsed={sidebarCollapsed}
-      setSidebarCollapsed={setSidebarCollapsed}
-    />
+    <ProtectedRoute>
+      <RoleBasedDashboard
+        userRole={userRole}
+        sidebarCollapsed={sidebarCollapsed}
+        setSidebarCollapsed={setSidebarCollapsed}
+      />
+    </ProtectedRoute>
   );
 }

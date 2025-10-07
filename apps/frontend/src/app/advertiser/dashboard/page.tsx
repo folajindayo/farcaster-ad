@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import {
   Card,
   CardContent,
@@ -190,14 +191,15 @@ export default function AdvertiserDashboard() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Campaign Dashboard</h1>
-          <p className="text-gray-600 mt-2">
-            Manage your ad campaigns and track performance
-          </p>
+    <ProtectedRoute>
+      <div className="container mx-auto py-8 px-4">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold">Campaign Dashboard</h1>
+            <p className="text-gray-600 mt-2">
+              Manage your ad campaigns and track performance
+            </p>
         </div>
         <Button
           onClick={() => setIsCreateModalOpen(true)}
@@ -356,6 +358,7 @@ export default function AdvertiserDashboard() {
         }}
       />
     </div>
+    </ProtectedRoute>
   );
 }
 
