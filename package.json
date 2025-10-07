@@ -1,0 +1,41 @@
+{
+  "name": "farcaster-ad-rental",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Farcaster Ad Rental Miniapp - Monetize profile surfaces with USDC",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "yarn workspace @farcaster-ad-rental/frontend dev",
+    "build": "yarn workspaces foreach -A run build",
+    "lint": "yarn workspaces foreach -A run lint",
+    "type-check": "yarn workspaces foreach -A run type-check",
+    "test": "yarn workspaces foreach -A run test",
+    "clean": "yarn workspaces foreach -A run clean",
+    "contracts:compile": "yarn workspace @farcaster-ad-rental/contracts compile",
+    "contracts:deploy": "yarn workspace @farcaster-ad-rental/contracts deploy",
+    "contracts:test": "yarn workspace @farcaster-ad-rental/contracts test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.1",
+    "prettier": "^3.1.0",
+    "typescript": "^5.3.0"
+  },
+  "packageManager": "yarn@4.0.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": ">=4.0.0"
+  },
+  "dependencies": {
+    "@types/express": "^5.0.3",
+    "axios": "^1.12.2",
+    "iconoir-react": "^7.11.0"
+  }
+}
