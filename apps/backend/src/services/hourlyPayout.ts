@@ -34,7 +34,7 @@ export class HourlyPayoutService {
     try {
       console.log('🕐 Starting hourly payout process...');
       
-      const now = new Date();
+    const now = new Date();
       const hourStart = new Date(now);
       hourStart.setMinutes(0, 0, 0);
       const hourEnd = new Date(hourStart.getTime() + 3600000);
@@ -73,9 +73,9 @@ export class HourlyPayoutService {
       }
       
       console.log('✅ Hourly payout process completed');
-    } catch (error) {
+  } catch (error) {
       console.error('❌ Error processing hourly payouts:', error);
-      throw error;
+    throw error;
     }
   }
   
@@ -90,7 +90,7 @@ export class HourlyPayoutService {
       console.log(`Processing payout for campaign ${campaignId} with ${receipts.length} receipts`);
       
       // Get campaign
-      const campaign = await Campaign.findById(campaignId);
+    const campaign = await Campaign.findById(campaignId);
       if (!campaign || campaign.status !== 'active') {
         console.log(`Campaign ${campaignId} not active, skipping`);
         return;
@@ -138,9 +138,9 @@ export class HourlyPayoutService {
         console.log(`Campaign ${campaignId} has no remaining budget, marking as completed`);
         campaign.status = 'completed';
         await campaign.save();
-        return;
-      }
-      
+      return;
+    }
+    
       // Apply platform fee (5% default)
       const platformFeePercent = parseFloat(process.env.PLATFORM_FEE_PERCENTAGE || '5');
       const platformFee = actualPayout * (platformFeePercent / 100);
@@ -210,11 +210,11 @@ export class HourlyPayoutService {
       
       // Check if campaign should be completed
       if (parseFloat(campaign.spent) >= parseFloat(campaign.budget)) {
-        campaign.status = 'completed';
-      }
-      
-      await campaign.save();
-      
+      campaign.status = 'completed';
+    }
+    
+    await campaign.save();
+    
       console.log(`✅ Created epoch ${epoch._id} for campaign ${campaignId}`);
       console.log(`   - Total payout: $${actualPayout.toFixed(2)}`);
       console.log(`   - Platform fee: $${platformFee.toFixed(2)}`);
@@ -255,9 +255,9 @@ export class HourlyPayoutService {
       await epoch.save();
       
       console.log(`Merkle root submitted for epoch ${epochId}`);
-    } catch (error) {
+  } catch (error) {
       console.error('Error submitting Merkle root:', error);
-      throw error;
+    throw error;
     }
   }
   
@@ -333,7 +333,7 @@ export class HourlyPayoutService {
       const estimatedCPM = 5.00; // Default CPM
       const estimatedEarnings = (totalImpressions / 1000) * estimatedCPM * 0.95; // After 5% platform fee
       
-      return {
+    return {
         hourStart,
         hourEnd,
         impressions: totalImpressions,

@@ -161,44 +161,34 @@ router.post('/api/auth/verify', async (req, res) => {
 ### Frontend Environment Variables (`.env.local`)
 
 ```env
+# Only one variable needed!
 NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
-
-# Optional: RPC URL for Optimism (where Farcaster data lives)
-# If not provided, uses public endpoint (fine for dev, not for production)
-NEXT_PUBLIC_RPC_URL=https://opt-mainnet.g.alchemy.com/v2/YOUR_ALCHEMY_KEY
-
-# Optional: Your domain (auto-detected in most cases)
-NEXT_PUBLIC_DOMAIN=farcaster-ad-rental.vercel.app
 ```
+
+**That's it!** The domain and RPC URL are auto-detected.
 
 ### Backend Environment Variables (`.env.local`)
 
 ```env
-DOMAIN=localhost:3002  # or your production domain
+DOMAIN=localhost:3002  # Your app's domain (for signature verification)
 MONGODB_URI=mongodb+srv://...
 ```
 
-### Why These Variables?
+### Why These Are Needed (Simplified Explanation)
 
-**NEXT_PUBLIC_RPC_URL** (Optional but recommended for production):
-- Farcaster stores account data on **Optimism** (Ethereum L2)
-- The RPC URL is used to verify signatures and fetch on-chain data
-- **Development**: Public endpoint works fine (but may be slow/rate-limited)
-- **Production**: Use Alchemy/Infura/QuickNode for reliability
-  - Get free Alchemy key: https://www.alchemy.com/
-  - Optimism mainnet RPC: `https://opt-mainnet.g.alchemy.com/v2/YOUR_KEY`
+**RPC URL (Optimism):**
+- Farcaster accounts live on the Optimism blockchain
+- The library needs to verify signatures against on-chain data
+- We use a public endpoint - works perfectly for authentication
+- You only need a paid RPC provider if you're making thousands of auth requests per minute
 
-**NEXT_PUBLIC_DOMAIN** (Auto-detected):
-- Used for **anti-phishing protection**
-- The signed message includes your domain
-- Backend verifies the signature was intended for YOUR domain
-- Auto-detects in most cases, only set manually if needed
+**SIWE URI / Domain:**
+- This is embedded in the message users sign
+- Example: "Sign in to **localhost:3002** with your Farcaster account"
+- Prevents someone from stealing the signature and using it on a different website
+- Auto-detected from your URL, but backend needs it to verify the signature matches
 
-**Why SIWE (Sign-In With Ethereum)?**:
-- Farcaster auth is built on the **EIP-4361** standard (SIWE)
-- This is a widely-adopted standard for crypto wallet sign-ins
-- The "SIWE URI" is embedded in the authentication message
-- It ensures the signature can't be reused on a different site
+**Bottom line:** User clicks "Connect Farcaster" → Signs message → Signature is verified → They're logged in! ✅
 
 ## Key Features
 
@@ -296,110 +286,4 @@ If users have issues connecting:
 ---
 
 **This is a production-ready implementation using official Farcaster libraries - not a mock or simulation.**
-
-
-## Visual Flow: Why RPC & SIWE?
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      USER AUTHENTICATION FLOW                    │
-└─────────────────────────────────────────────────────────────────┘
-
-1. USER CLICKS "CONNECT FARCASTER"
-   │
-   ├─> Frontend generates auth request
-   │   • Domain: your-app.com
-   │   • SIWE URI: https://your-app.com
-   │   • Nonce: random string
-   │
-2. QR CODE DISPLAYED / DEEPLINK OPENED
-   │
-3. USER SCANS WITH WARPCAST APP
-   │
-4. WARPCAST SHOWS: "Sign in to your-app.com?"
-   │   • User sees YOUR domain (anti-phishing)
-   │   • Message includes the SIWE URI
-   │
-5. USER APPROVES
-   │
-6. WARPCAST SIGNS MESSAGE WITH USER'S KEY
-   │
-7. SIGNATURE + PROFILE DATA SENT TO YOUR FRONTEND
-   │
-8. FRONTEND SENDS TO YOUR BACKEND
-   │
-9. BACKEND VERIFIES SIGNATURE
-   │
-   ├─> Uses RPC to connect to OPTIMISM BLOCKCHAIN
-   │   │
-   │   ├─> Fetches Farcaster contract data
-   │   ├─> Verifies FID ownership
-   │   ├─> Gets verified wallet addresses
-   │   └─> Confirms signature is valid
-   │
-10. BACKEND CHECKS:
-    ✓ Signature is cryptographically valid
-    ✓ Domain matches (prevents phishing)
-    ✓ Nonce hasn't been used before
-    ✓ FID matches the claimed user
-    │
-11. USER AUTHENTICATED! ✅
-
-
-┌─────────────────────────────────────────────────────────────────┐
-│                  WHY EACH COMPONENT IS NEEDED                    │
-└─────────────────────────────────────────────────────────────────┘
-
-RPC URL (Optimism):
-├─> Farcaster account data lives on Optimism blockchain
-├─> Needed to verify signatures against on-chain data
-├─> Fetches user's verified wallet addresses
-└─> Public endpoint works for dev, but use Alchemy/Infura in prod
-
-SIWE URI (Sign-In With Ethereum):
-├─> Standard protocol (EIP-4361) for crypto sign-ins
-├─> Embedded in the signed message
-├─> Prevents signature from being reused on different sites
-└─> Your backend checks: "Was this signature for MY domain?"
-
-DOMAIN:
-├─> Shows users which site they're signing into
-├─> Prevents phishing attacks
-├─> Backend validates signature was intended for this domain
-└─> Example: User sees "Sign in to your-app.com" in Warpcast
-
-
-┌─────────────────────────────────────────────────────────────────┐
-│                      SECURITY BENEFITS                           │
-└─────────────────────────────────────────────────────────────────┘
-
-1. Anti-Phishing:
-   User sees YOUR domain in their Farcaster app
-   Can't be tricked into signing for fake-site.com
-
-2. Replay Protection:
-   Signature includes nonce + timestamp
-   Can't be reused after first use
-
-3. Domain Binding:
-   Signature only valid for YOUR domain
-   Attacker can't steal and use elsewhere
-
-4. On-Chain Verification:
-   RPC verifies against blockchain data
-   No way to fake a Farcaster ID
-
-5. No Password Storage:
-   User authenticates via their Farcaster app
-   You never handle passwords
-```
-
-## TL;DR
-
-**RPC URL**: Connects to Optimism blockchain to verify Farcaster account data  
-**SIWE URI**: Security standard that binds signatures to your domain  
-**DOMAIN**: Shows users which site they're authenticating with  
-
-**For Development**: The defaults work fine!  
-**For Production**: Get a free Alchemy key for better reliability  
 
