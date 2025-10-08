@@ -37,18 +37,22 @@ export default function FarcasterAuth({ onSuccess }: FarcasterAuthProps) {
 
       console.log('Auth response:', res) // Debug log
 
-      // AuthKit returns the data in different formats depending on version
-      // Extract the profile data and signature
-      const fid = res.fid || res.profile?.fid
-      const username = res.username || res.profile?.username
-      const displayName = res.displayName || res.profile?.displayName || res.profile?.display_name
-      const pfpUrl = res.pfpUrl || res.profile?.pfpUrl || res.profile?.pfp_url || res.profile?.pfp?.url
-      const custody = res.custody || res.custodyAddress || res.profile?.custody
-      const verifications = res.verifications || res.profile?.verifications || []
-      const message = res.message
+      // AuthKit v0.8+ returns data in signatureParams and metadata
+      const fid = res.signatureParams?.fid || res.fid
+      const message = res.signatureParams?.message || res.message
       const signature = res.signature
+      
+      // Profile data from metadata
+      const username = res.metadata?.username || res.username
+      const displayName = res.metadata?.displayName || res.metadata?.display_name || res.displayName
+      const pfpUrl = res.metadata?.profileImage || res.metadata?.pfpUrl || res.pfpUrl
+      const custody = res.signatureParams?.address || res.custody
+      const verifications = res.metadata?.verifications || res.verifications || []
+
+      console.log('Extracted data:', { fid, username, displayName, pfpUrl, custody })
 
       if (!fid || !message || !signature) {
+        console.error('Missing required auth data:', { fid, message: !!message, signature: !!signature })
         throw new Error('Missing required authentication data')
       }
 
