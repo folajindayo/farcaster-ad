@@ -328,23 +328,20 @@ export function Sidebar({ className }: SidebarProps) {
                 )}
               </button>
 
-              <button
-                onClick={() => handleSwitchRole('operator')}
-                disabled={switchingRole || user?.role === 'operator'}
-                className={`w-full p-4 rounded border transition-all text-left ${
-                  user?.role === 'operator'
-                    ? 'bg-neon-purple/20 border-neon-purple text-neon-purple'
-                    : 'bg-dark-900 border-cyber-500/30 text-cyber-100 hover:border-neon-purple hover:bg-dark-700'
-                } disabled:opacity-50`}
-              >
-                <div className="font-medium text-lg">Operator</div>
-                <div className="text-sm text-cyber-400 mt-1">
-                  Manage platform operations and settlements
-                </div>
-                {user?.role === 'operator' && (
-                  <div className="text-xs text-neon-purple mt-2">● Current Role</div>
-                )}
-              </button>
+              {/* Only show Operator option if user is already an operator */}
+              {user?.role === 'operator' && (
+                <button
+                  onClick={() => handleSwitchRole('operator')}
+                  disabled={true}
+                  className="w-full p-4 rounded border transition-all text-left bg-neon-purple/20 border-neon-purple text-neon-purple opacity-50"
+                >
+                  <div className="font-medium text-lg">Operator</div>
+                  <div className="text-sm text-cyber-400 mt-1">
+                    Manage platform operations and settlements
+                  </div>
+                  <div className="text-xs text-neon-purple mt-2">● Current Role (Admin Only)</div>
+                </button>
+              )}
             </div>
 
             <button

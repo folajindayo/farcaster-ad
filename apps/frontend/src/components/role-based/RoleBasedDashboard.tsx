@@ -641,23 +641,20 @@ export default function RoleBasedDashboard({
                 )}
               </button>
 
-              <button
-                onClick={() => handleSwitchRole('operator')}
-                disabled={switchingRole || userRole === 'operator'}
-                className={`w-full p-4 rounded border transition-all text-left ${
-                  userRole === 'operator'
-                    ? 'bg-orange-500/20 border-orange-500 text-orange-400'
-                    : 'bg-neutral-800 border-neutral-700 text-white hover:border-orange-500 hover:bg-neutral-700'
-                } disabled:opacity-50`}
-              >
-                <div className="font-medium text-lg">Operator</div>
-                <div className="text-sm text-neutral-400 mt-1">
-                  Manage platform operations and settlements
-                </div>
-                {userRole === 'operator' && (
-                  <div className="text-xs text-orange-400 mt-2">● Current Role</div>
-                )}
-              </button>
+              {/* Only show Operator option if user is already an operator */}
+              {userRole === 'operator' && (
+                <button
+                  onClick={() => handleSwitchRole('operator')}
+                  disabled={true}
+                  className="w-full p-4 rounded border transition-all text-left bg-orange-500/20 border-orange-500 text-orange-400 opacity-50"
+                >
+                  <div className="font-medium text-lg">Operator</div>
+                  <div className="text-sm text-neutral-400 mt-1">
+                    Manage platform operations and settlements
+                  </div>
+                  <div className="text-xs text-orange-400 mt-2">● Current Role (Admin Only)</div>
+                </button>
+              )}
             </div>
 
             <button
