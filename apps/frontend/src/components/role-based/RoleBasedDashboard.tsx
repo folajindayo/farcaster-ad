@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ChevronRight, Monitor, Settings, Target, Users, Bell, RefreshCw, TrendingUp, DollarSign, Eye, MousePointer } from 'lucide-react'
+import { ChevronRight, Monitor, Settings, Target, Users, Bell, RefreshCw, TrendingUp, DollarSign, Eye, MousePointer, LogOut, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CreateCampaignModalDetailed } from '@/components/modals/CreateCampaignModalDetailed'
+import { useRouter } from 'next/navigation'
 
 // Advertiser Dashboard
 function AdvertiserDashboard() {
@@ -335,7 +336,30 @@ export default function RoleBasedDashboard({
   sidebarCollapsed, 
   setSidebarCollapsed 
 }: RoleBasedDashboardProps) {
-  const [activeSection, setActiveSection] = useState("overview");
+  const router = useRouter()
+  const [activeSection, setActiveSection] = useState("overview")
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const userStr = localStorage.getItem('user')
+      if (userStr) {
+        try {
+          setUser(JSON.parse(userStr))
+        } catch (e) {
+          console.error('Error parsing user data:', e)
+        }
+      }
+    }
+  }, [])
+
+  const handleSignOut = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      router.push('/')
+    }
+  }
 
   const getNavigationItems = () => {
     switch (userRole) {
@@ -434,17 +458,37 @@ export default function RoleBasedDashboard({
             ))}
           </nav>
 
-          {!sidebarCollapsed && (
+          {!sidebarCollapsed && user && (
             <div className="mt-8 p-4 bg-neutral-800 border border-neutral-700 rounded">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                <span className="text-xs text-white">SYSTEM ONLINE</span>
+              <div className="flex items-center gap-3 mb-3">
+                {user.pfpUrl ? (
+                  <img 
+                    src={user.pfpUrl} 
+                    alt={user.displayName || user.username}
+                    className="w-10 h-10 rounded-full border-2 border-orange-500"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-500 to-yellow-500 flex items-center justify-center">
+                    <User className="h-5 w-5 text-black" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">
+                    {user.displayName || user.username || 'User'}
+                  </p>
+                  <p className="text-xs text-neutral-400 truncate">
+                    @{user.username || `fid-${user.farcasterId}`}
+                  </p>
+                </div>
               </div>
-              <div className="text-xs text-neutral-500">
-                <div>UPTIME: 72:14:33</div>
-                <div>ROLE: {userRole.toUpperCase()}</div>
-                <div>STATUS: ACTIVE</div>
-              </div>
+              
+              <button
+                onClick={handleSignOut}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded text-sm font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 border border-red-500/30 transition-all duration-200"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Sign Out</span>
+              </button>
             </div>
           )}
         </div>

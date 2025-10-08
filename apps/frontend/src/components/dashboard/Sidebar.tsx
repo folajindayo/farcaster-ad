@@ -80,17 +80,12 @@ export function Sidebar({ className }: SidebarProps) {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const userStr = localStorage.getItem('user')
-      console.log('Sidebar: localStorage user:', userStr)
       if (userStr) {
         try {
-          const userData = JSON.parse(userStr)
-          console.log('Sidebar: Parsed user data:', userData)
-          setUser(userData)
+          setUser(JSON.parse(userStr))
         } catch (e) {
           console.error('Error parsing user data:', e)
         }
-      } else {
-        console.log('Sidebar: No user data in localStorage')
       }
     }
   }, [])
