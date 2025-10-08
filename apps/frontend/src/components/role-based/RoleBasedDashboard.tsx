@@ -347,7 +347,18 @@ export default function RoleBasedDashboard({
       const userStr = localStorage.getItem('user')
       if (userStr) {
         try {
-          setUser(JSON.parse(userStr))
+          const userData = JSON.parse(userStr)
+          setUser(userData)
+          
+          // Log user data on mount (after role switch reload)
+          console.log('👤 Current User Data:', userData)
+          console.log('🎭 Current Role:', userData.role)
+          console.log('📋 User Details:', {
+            username: userData.username,
+            displayName: userData.displayName,
+            fid: userData.farcasterId,
+            role: userData.role
+          })
         } catch (e) {
           console.error('Error parsing user data:', e)
         }

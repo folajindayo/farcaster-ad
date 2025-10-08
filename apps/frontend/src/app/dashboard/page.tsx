@@ -22,6 +22,20 @@ function AdvertiserDashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Log user data on mount
+    if (typeof window !== 'undefined') {
+      const userStr = localStorage.getItem('user')
+      if (userStr) {
+        try {
+          const userData = JSON.parse(userStr)
+          console.log('👤 Dashboard loaded with user:', userData)
+          console.log('🎭 Current Role:', userData.role)
+        } catch (e) {
+          console.error('Error parsing user data:', e)
+        }
+      }
+    }
+    
     fetchCampaigns();
   }, []);
 
