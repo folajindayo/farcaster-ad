@@ -66,6 +66,7 @@ export function CreateCampaignModalDetailed({
 }: CreateCampaignModalProps) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showSuccess, setShowSuccess] = useState(false);
@@ -236,21 +237,16 @@ export function CreateCampaignModalDetailed({
       return;
     }
 
-    // Create preview and set as temporary URL
+    // Create preview
     const reader = new FileReader();
     reader.onloadend = () => {
       const dataUrl = reader.result as string;
       setImagePreview(dataUrl);
-      // Set the data URL as mediaUrl so validation passes
-      setForm({ ...form, mediaUrl: dataUrl });
-      // Clear any validation errors
-      if (errors.mediaUrl) {
-        setErrors({ ...errors, mediaUrl: '' });
-      }
     };
     reader.readAsDataURL(file);
 
-    // Upload to backend (optional - if it fails, we still have the data URL)
+    // Upload to backend - REQUIRED (don't use base64)
+    setUploadingImage(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -262,12 +258,23 @@ export function CreateCampaignModalDetailed({
 
       if (response.ok) {
         const data = await response.json();
-        // Replace data URL with actual uploaded URL
+        console.log('✅ Image uploaded to Cloudinary:', data.url);
+        // Set the actual Cloudinary URL (NOT base64)
         setForm({ ...form, mediaUrl: data.url });
+        // Clear any validation errors
+        if (errors.mediaUrl) {
+          setErrors({ ...errors, mediaUrl: '' });
+        }
+      } else {
+        throw new Error('Upload failed');
       }
     } catch (error) {
       console.error('Error uploading image:', error);
-      // Don't show error - we already have the data URL set
+      alert('Failed to upload image. Please try again.');
+      setImagePreview('');
+      setForm({ ...form, mediaUrl: '' });
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -654,18 +661,28 @@ export function CreateCampaignModalDetailed({
                             alt="Preview"
                             className="max-h-48 rounded-lg border border-cyber-500"
                           />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setImagePreview('');
-                              setForm({ ...form, mediaUrl: '' });
-                            }}
-                            className="absolute top-2 right-2 bg-dark-800/90 border-cyber-500 text-cyber-300 hover:bg-dark-700"
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
+                          {uploadingImage && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-lg">
+                              <div className="text-center">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neon-cyan mx-auto mb-2"></div>
+                                <p className="text-neon-cyan text-sm">Uploading...</p>
+                              </div>
+                            </div>
+                          )}
+                          {!uploadingImage && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setImagePreview('');
+                                setForm({ ...form, mediaUrl: '' });
+                              }}
+                              className="absolute top-2 right-2 bg-dark-800/90 border-cyber-500 text-cyber-300 hover:bg-dark-700"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          )}
                         </div>
                       ) : (
                         <div
@@ -887,7 +904,7 @@ export function CreateCampaignModalDetailed({
               ) : (
                 <Button
                   onClick={handleSubmit}
-                  disabled={loading}
+                  disabled={loading || uploadingImage}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   {loading ? 'Launching...' : '🟢 Launch Campaign'}
