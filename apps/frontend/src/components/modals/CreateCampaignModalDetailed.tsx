@@ -124,11 +124,22 @@ export function CreateCampaignModalDetailed({
       console.log('Creating campaign:', form);
 
       // Prepare campaign data for backend
+      // Get user ID from localStorage
+      let advertiserId = 'default-user';
+      if (typeof window !== 'undefined') {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+          try {
+            const userData = JSON.parse(userStr);
+            advertiserId = userData._id || userData.id || 'default-user';
+          } catch (e) {
+            console.error('Error parsing user data:', e);
+          }
+        }
+      }
+      
       const campaignData = {
-        advertiserId:
-          typeof window !== 'undefined'
-            ? localStorage.getItem('userId') || 'default-user'
-            : 'default-user',
+        advertiserId,
         title: form.name,
         description: `${form.objective} campaign targeting ${form.targetAudience || 'general audience'}`,
         budget: form.budget,
