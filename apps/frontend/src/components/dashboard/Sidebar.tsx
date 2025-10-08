@@ -1,3 +1,5 @@
+'use client'
+
 import { cn } from "@/lib/utils"
 import { 
   LayoutDashboard, 
@@ -9,9 +11,13 @@ import {
   Zap,
   Target,
   TrendingUp,
-  Users
+  Users,
+  LogOut,
+  User
 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
 
 const navigation = [
   {
@@ -67,9 +73,30 @@ interface SidebarProps {
 }
 
 export function Sidebar({ className }: SidebarProps) {
-  // For now, we'll use a simple active state logic
-  // In a real app, you'd use usePathname from next/navigation
+  const router = useRouter()
   const pathname = '/dashboard' // This would be dynamic in a real app
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const userStr = localStorage.getItem('user')
+      if (userStr) {
+        try {
+          setUser(JSON.parse(userStr))
+        } catch (e) {
+          console.error('Error parsing user data:', e)
+        }
+      }
+    }
+  }, [])
+
+  const handleSignOut = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      router.push('/')
+    }
+  }
 
   return (
     <div className={cn("flex flex-col h-full bg-dark-800/50 backdrop-blur-sm border-r border-cyber-500/20", className)}>
@@ -148,6 +175,41 @@ export function Sidebar({ className }: SidebarProps) {
           <span>Help & Support</span>
         </Link>
       </div>
+
+      {/* User Profile */}
+      {user && (
+        <div className="p-4 border-t border-cyber-500/20 bg-dark-900/50">
+          <div className="flex items-center space-x-3 mb-3">
+            {user.pfpUrl ? (
+              <img 
+                src={user.pfpUrl} 
+                alt={user.displayName || user.username}
+                className="w-10 h-10 rounded-full border-2 border-neon-cyan/50"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-neon-cyan to-neon-pink flex items-center justify-center">
+                <User className="h-5 w-5 text-dark-900" />
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-cyber-100 truncate">
+                {user.displayName || user.username || 'User'}
+              </p>
+              <p className="text-xs text-cyber-400 truncate">
+                @{user.username || `fid-${user.farcasterId}`}
+              </p>
+            </div>
+          </div>
+          
+          <button
+            onClick={handleSignOut}
+            className="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 border border-red-500/30 transition-all duration-200"
+          >
+            <LogOut className="h-4 w-4" />
+            <span>Sign Out</span>
+          </button>
+        </div>
+      )}
     </div>
   )
 }
