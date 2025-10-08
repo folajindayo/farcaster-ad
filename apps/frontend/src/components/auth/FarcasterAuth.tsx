@@ -77,13 +77,20 @@ export default function FarcasterAuth({ onSuccess }: FarcasterAuthProps) {
       
       const authData = await verifyResponse.json()
       
+      console.log('Backend auth response:', authData)
+      
       if (!verifyResponse.ok) {
         throw new Error(authData.message || 'Authentication failed')
       }
       
       // Store token and user data
+      console.log('Storing token:', authData.token)
+      console.log('Storing user:', authData.user)
       localStorage.setItem('token', authData.token)
       localStorage.setItem('user', JSON.stringify(authData.user))
+      
+      // Verify storage
+      console.log('Verified localStorage user:', localStorage.getItem('user'))
       
       // Call onSuccess or redirect
       if (onSuccess) {
