@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ChevronRight, Monitor, Settings, Target, Users, Bell, RefreshCw, TrendingUp, DollarSign, Eye, MousePointer, LogOut, User } from 'lucide-react'
+import { ChevronRight, Monitor, Settings, Target, Users, Bell, RefreshCw, TrendingUp, DollarSign, Eye, MousePointer, LogOut, User, UserPlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CreateCampaignModalDetailed } from '@/components/modals/CreateCampaignModalDetailed'
@@ -482,13 +482,23 @@ export default function RoleBasedDashboard({
                 </div>
               </div>
               
-              <button
-                onClick={handleSignOut}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded text-sm font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 border border-red-500/30 transition-all duration-200"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Sign Out</span>
-              </button>
+              <div className="space-y-2">
+                <button
+                  onClick={handleSignOut}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded text-sm font-medium bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 hover:text-orange-300 border border-orange-500/30 transition-all duration-200"
+                >
+                  <UserPlus className="h-4 w-4" />
+                  <span>Switch User</span>
+                </button>
+                
+                <button
+                  onClick={handleSignOut}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded text-sm font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 border border-red-500/30 transition-all duration-200"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
             </div>
           )}
         </div>

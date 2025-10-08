@@ -13,7 +13,8 @@ import {
   TrendingUp,
   Users,
   LogOut,
-  User
+  User,
+  UserPlus
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -201,13 +202,23 @@ export function Sidebar({ className }: SidebarProps) {
             </div>
           </div>
           
-          <button
-            onClick={handleSignOut}
-            className="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 border border-red-500/30 transition-all duration-200"
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Sign Out</span>
-          </button>
+          <div className="space-y-2">
+            <button
+              onClick={handleSignOut}
+              className="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium bg-neon-cyan/10 text-neon-cyan hover:bg-neon-cyan/20 hover:text-cyber-100 border border-neon-cyan/30 transition-all duration-200"
+            >
+              <UserPlus className="h-4 w-4" />
+              <span>Switch User</span>
+            </button>
+            
+            <button
+              onClick={handleSignOut}
+              className="w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 border border-red-500/30 transition-all duration-200"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Sign Out</span>
+            </button>
+          </div>
         </div>
       )}
     </div>
