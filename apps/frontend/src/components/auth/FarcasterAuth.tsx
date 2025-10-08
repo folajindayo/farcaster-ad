@@ -35,9 +35,22 @@ export default function FarcasterAuth({ onSuccess }: FarcasterAuthProps) {
     try {
       setError(null)
 
-      // The response contains the user's Farcaster profile and signature
-      const { fid, username, displayName, pfpUrl, custody, verifications } = res.profile
-      const { message, signature } = res
+      console.log('Auth response:', res) // Debug log
+
+      // AuthKit returns the data in different formats depending on version
+      // Extract the profile data and signature
+      const fid = res.fid || res.profile?.fid
+      const username = res.username || res.profile?.username
+      const displayName = res.displayName || res.profile?.displayName || res.profile?.display_name
+      const pfpUrl = res.pfpUrl || res.profile?.pfpUrl || res.profile?.pfp_url || res.profile?.pfp?.url
+      const custody = res.custody || res.custodyAddress || res.profile?.custody
+      const verifications = res.verifications || res.profile?.verifications || []
+      const message = res.message
+      const signature = res.signature
+
+      if (!fid || !message || !signature) {
+        throw new Error('Missing required authentication data')
+      }
 
       // Verify signature with our backend
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
