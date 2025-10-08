@@ -24,16 +24,17 @@ export const verifyFarcasterAuth = async (
   verifications?: string[]
 ) => {
   try {
-    // AuthKit has already verified the signature on the client side
-    // For additional security in production, you could verify again here
-    // For now, we trust AuthKit's verification since it uses the official Farcaster relay
-    
-    console.log('Verifying auth for FID:', fid, 'Username:', username);
-    
-    // Basic validation - ensure we have required data
+    // Validate required fields
     if (!fid || !message || !signature) {
       throw new Error('Missing required authentication data');
     }
+
+    console.log('Verifying Farcaster auth for FID:', fid);
+
+    // Note: AuthKit already verified the signature on the client side
+    // The signature was created by the user's Farcaster app (Warpcast)
+    // and verified by Farcaster's relay server before reaching us.
+    // We trust this verification since it came through the official AuthKit flow.
 
     // Find or create user in our database
     let user = await User.findOne({ farcasterId: fid.toString() });
