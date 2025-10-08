@@ -607,9 +607,9 @@ export default function RoleBasedDashboard({
             <div className="space-y-3">
               <button
                 onClick={() => handleSwitchRole('advertiser')}
-                disabled={switchingRole || userRole === 'advertiser'}
+                disabled={switchingRole || user?.role === 'advertiser'}
                 className={`w-full p-4 rounded border transition-all text-left ${
-                  userRole === 'advertiser'
+                  user?.role === 'advertiser'
                     ? 'bg-orange-500/20 border-orange-500 text-orange-400'
                     : 'bg-neutral-800 border-neutral-700 text-white hover:border-orange-500 hover:bg-neutral-700'
                 } disabled:opacity-50`}
@@ -618,16 +618,16 @@ export default function RoleBasedDashboard({
                 <div className="text-sm text-neutral-400 mt-1">
                   Create and manage ad campaigns
                 </div>
-                {userRole === 'advertiser' && (
+                {user?.role === 'advertiser' && (
                   <div className="text-xs text-orange-400 mt-2">● Current Role</div>
                 )}
               </button>
 
               <button
                 onClick={() => handleSwitchRole('host')}
-                disabled={switchingRole || userRole === 'host'}
+                disabled={switchingRole || user?.role === 'host'}
                 className={`w-full p-4 rounded border transition-all text-left ${
-                  userRole === 'host'
+                  user?.role === 'host'
                     ? 'bg-orange-500/20 border-orange-500 text-orange-400'
                     : 'bg-neutral-800 border-neutral-700 text-white hover:border-orange-500 hover:bg-neutral-700'
                 } disabled:opacity-50`}
@@ -636,13 +636,13 @@ export default function RoleBasedDashboard({
                 <div className="text-sm text-neutral-400 mt-1">
                   Earn by displaying ads on your profile
                 </div>
-                {userRole === 'host' && (
+                {user?.role === 'host' && (
                   <div className="text-xs text-orange-400 mt-2">● Current Role</div>
                 )}
               </button>
 
               {/* Only show Operator option if user is already an operator */}
-              {userRole === 'operator' && (
+              {user?.role === 'operator' && (
                 <button
                   onClick={() => handleSwitchRole('operator')}
                   disabled={true}
