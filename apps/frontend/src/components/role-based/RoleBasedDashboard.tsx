@@ -383,9 +383,17 @@ export default function RoleBasedDashboard({
       if (response.ok) {
         const data = await response.json()
         
+        console.log('✅ Role switched successfully!')
+        console.log('📊 Old user data:', user)
+        console.log('📊 New user data:', data.user)
+        console.log('🔑 New token:', data.token)
+        
         // Update localStorage with new user data and token
         localStorage.setItem('user', JSON.stringify(data.user))
         localStorage.setItem('token', data.token)
+        
+        console.log('💾 LocalStorage updated')
+        console.log('🔄 Reloading page...')
         
         // Reload the page to reflect new role
         window.location.reload()
