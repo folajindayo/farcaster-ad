@@ -3,17 +3,32 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IHost extends Document {
   _id: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
-  isActive: boolean;
-  preferences: Record<string, unknown>;
+  farcasterId: number;
+  username: string;
+  displayName?: string;
+  followerCount: number;
+  status: 'active' | 'inactive' | 'paused';
+  acceptingCampaigns: boolean;
+  
+  // Ad preferences
+  adTypes: ('banner' | 'pinned_cast')[];
+  categories: string[];
+  minimumCPM: number;
+  
+  // Original profile data (for reverting after campaign ends)
+  originalBanner?: string;
+  
+  // Earnings
   totalEarnings: number;
   pendingEarnings: number;
   
-  // Mini App Integration
+  // Mini App permissions
   miniAppPermissionsGranted: boolean;
-  miniAppGrantedAt?: Date;
-  allowedAdTypes: ('pinned_cast' | 'banner')[];
-  maxAdsPerDay: number;
-  minCpm: number; // Minimum CPM they'll accept (in dollars)
+  lastPermissionUpdate?: Date;
+  
+  // Legacy
+  isActive: boolean;
+  preferences: Record<string, unknown>;
   
   createdAt: Date;
   updatedAt: Date;
@@ -25,14 +40,53 @@ const HostSchema = new Schema<IHost>({
     ref: 'User',
     required: true
   },
-  isActive: {
+  farcasterId: {
+    type: Number,
+    required: true,
+    unique: true
+  },
+  username: {
+    type: String,
+    required: true
+  },
+  displayName: {
+    type: String
+  },
+  followerCount: {
+    type: Number,
+    default: 0
+  },
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'paused'],
+    default: 'active'
+  },
+  acceptingCampaigns: {
     type: Boolean,
     default: true
   },
-  preferences: {
-    type: Schema.Types.Mixed,
-    default: {}
+  
+  // Ad preferences
+  adTypes: {
+    type: [String],
+    enum: ['banner', 'pinned_cast'],
+    default: ['banner', 'pinned_cast']
   },
+  categories: {
+    type: [String],
+    default: []
+  },
+  minimumCPM: {
+    type: Number,
+    default: 0
+  },
+  
+  // Original profile data
+  originalBanner: {
+    type: String
+  },
+  
+  // Earnings
   totalEarnings: {
     type: Number,
     default: 0,
@@ -43,29 +97,24 @@ const HostSchema = new Schema<IHost>({
     default: 0,
     min: 0
   },
-  // Mini App Integration
+  
+  // Mini App permissions
   miniAppPermissionsGranted: {
     type: Boolean,
     default: false
   },
-  miniAppGrantedAt: {
+  lastPermissionUpdate: {
     type: Date
   },
-  allowedAdTypes: {
-    type: [String],
-    enum: ['pinned_cast', 'banner'],
-    default: ['pinned_cast', 'banner']
+  
+  // Legacy fields (keep for backward compatibility)
+  isActive: {
+    type: Boolean,
+    default: true
   },
-  maxAdsPerDay: {
-    type: Number,
-    default: 5,
-    min: 1,
-    max: 20
-  },
-  minCpm: {
-    type: Number,
-    default: 1.0, // $1 minimum CPM
-    min: 0.1
+  preferences: {
+    type: Schema.Types.Mixed,
+    default: {}
   }
 }, {
   timestamps: true,
@@ -74,5 +123,9 @@ const HostSchema = new Schema<IHost>({
 
 // Indexes for performance
 HostSchema.index({ userId: 1 });
+HostSchema.index({ farcasterId: 1 });
+HostSchema.index({ status: 1, acceptingCampaigns: 1 });
+HostSchema.index({ followerCount: 1 });
+HostSchema.index({ categories: 1 });
 
 export const Host = mongoose.model<IHost>('Host', HostSchema);

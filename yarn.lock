@@ -8046,6 +8046,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "farcaster-ad-rental@workspace:."
   dependencies:
+    "@farcaster/frame-sdk": "npm:^0.1.10"
     "@types/express": "npm:^5.0.3"
     "@types/node": "npm:^20.10.0"
     "@typescript-eslint/eslint-plugin": "npm:^6.13.0"

@@ -16,7 +16,104 @@ const handleError = (error: unknown): AppError => {
 
 const router = express.Router();
 
-// Opt-in to hosting (install miniapp)
+// Host onboarding (new flow with auto-assignment)
+router.post('/onboard', async (req, res) => {
+  try {
+    const { farcasterId, username, displayName, followerCount, preferences } = req.body;
+
+    if (!farcasterId || !username) {
+      throw new AppError('Farcaster ID and username are required', 400, 'MISSING_REQUIRED_FIELDS');
+    }
+
+    // Get user from token or find by farcasterId
+    const user = await User.findOne({ farcasterId });
+    if (!user) {
+      throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+    }
+
+    // Check if user is already a host
+    let host = await Host.findOne({ farcasterId });
+    
+    if (host) {
+      // Update existing host
+      host.username = username;
+      host.displayName = displayName || username;
+      host.followerCount = followerCount || 0;
+      host.status = 'active';
+      host.acceptingCampaigns = preferences?.autoAcceptCampaigns !== false;
+      host.adTypes = preferences?.adTypes || ['banner', 'pinned_cast'];
+      host.categories = preferences?.categories || [];
+      host.minimumCPM = preferences?.minimumCPM || 0;
+      host.miniAppPermissionsGranted = true;
+      host.lastPermissionUpdate = new Date();
+      await host.save();
+    } else {
+      // Create new host
+      host = new Host({
+        userId: user._id,
+        farcasterId,
+        username,
+        displayName: displayName || username,
+        followerCount: followerCount || 0,
+        status: 'active',
+        acceptingCampaigns: preferences?.autoAcceptCampaigns !== false,
+        adTypes: preferences?.adTypes || ['banner', 'pinned_cast'],
+        categories: preferences?.categories || [],
+        minimumCPM: preferences?.minimumCPM || 0,
+        miniAppPermissionsGranted: true,
+        lastPermissionUpdate: new Date(),
+        isActive: true,
+        totalEarnings: 0,
+        pendingEarnings: 0
+      });
+      await host.save();
+    }
+
+    // Update user role to host
+    user.role = 'host';
+    user.isHost = true;
+    await user.save();
+
+    // Trigger auto-assignment for this new host
+    (async () => {
+      try {
+        const { autoAssignment } = await import('../services/autoAssignment');
+        console.log(`🚀 Triggering auto-assignment for new host ${host._id}`);
+        await autoAssignment.processNewHost(host._id.toString());
+      } catch (error) {
+        console.error('Error in auto-assignment for new host:', error);
+        // Don't fail the onboarding if auto-assignment fails
+      }
+    })();
+
+    res.status(201).json({
+      success: true,
+      data: {
+        host: {
+          id: host._id,
+          farcasterId: host.farcasterId,
+          username: host.username,
+          displayName: host.displayName,
+          followerCount: host.followerCount,
+          status: host.status,
+          acceptingCampaigns: host.acceptingCampaigns,
+          preferences: {
+            adTypes: host.adTypes,
+            categories: host.categories,
+            minimumCPM: host.minimumCPM,
+            autoAcceptCampaigns: host.acceptingCampaigns
+          }
+        },
+        message: 'Host onboarded successfully! Campaigns will be auto-assigned.'
+      }
+    });
+  } catch (error) {
+    const err = handleError(error);
+    res.status(err.statusCode || 500).json({ error: err.message });
+  }
+});
+
+// Opt-in to hosting (install miniapp) - LEGACY
 router.post('/opt-in', async (req, res) => {
   try {
     const { userId, preferences } = req.body;

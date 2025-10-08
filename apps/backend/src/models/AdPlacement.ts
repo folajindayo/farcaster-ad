@@ -13,7 +13,9 @@ export interface IAdPlacement extends Document {
     | 'cancelled';
   approvedAt?: Date;
   startedAt?: Date;
+  startDate?: Date;
   endedAt?: Date;
+  endDate?: Date;
   metrics: Record<string, unknown>;
   // Add missing properties
   impressions: number;
@@ -24,6 +26,22 @@ export interface IAdPlacement extends Document {
   targeting: any;
   creative: any;
   advertiserId: mongoose.Types.ObjectId;
+  adType?: string;
+  pricing?: {
+    cpm?: number;
+    totalBudget?: number;
+  };
+  performance?: {
+    impressions?: number;
+    clicks?: number;
+    earnings?: number;
+  };
+  metadata?: {
+    castHash?: string;
+    postedAt?: Date;
+    bannerUrl?: string;
+    bannerUpdatedAt?: Date;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -98,6 +116,31 @@ const AdPlacementSchema = new Schema<IAdPlacement>(
       type: Schema.Types.ObjectId,
       ref: 'Advertiser',
       required: true,
+    },
+    adType: {
+      type: String,
+      enum: ['banner', 'pinned_cast', 'both'],
+    },
+    startDate: {
+      type: Date,
+    },
+    endDate: {
+      type: Date,
+    },
+    pricing: {
+      cpm: Number,
+      totalBudget: Number,
+    },
+    performance: {
+      impressions: { type: Number, default: 0 },
+      clicks: { type: Number, default: 0 },
+      earnings: { type: Number, default: 0 },
+    },
+    metadata: {
+      castHash: String,
+      postedAt: Date,
+      bannerUrl: String,
+      bannerUpdatedAt: Date,
     },
   },
   {

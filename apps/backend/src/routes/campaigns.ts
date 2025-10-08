@@ -231,6 +231,19 @@ router.post('/', async (req, res) => {
 
     await campaign.save();
 
+    // Auto-assign campaign to matching hosts (async, don't wait)
+    // This will match, assign, and deploy ads automatically
+    (async () => {
+      try {
+        const { autoAssignment } = await import('../services/autoAssignment');
+        console.log(`🚀 Triggering auto-assignment for campaign ${campaign._id}`);
+        await autoAssignment.processFundedCampaign(campaign._id.toString());
+      } catch (error) {
+        console.error('Error in auto-assignment:', error);
+        // Don't fail the campaign creation if auto-assignment fails
+      }
+    })();
+
     res.status(201).json({
       success: true,
       data: {
