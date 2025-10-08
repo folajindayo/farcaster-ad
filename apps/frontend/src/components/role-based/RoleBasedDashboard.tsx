@@ -7,9 +7,72 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CreateCampaignModalDetailed } from '@/components/modals/CreateCampaignModalDetailed'
 import { useRouter } from 'next/navigation'
 
+// Campaign Interface
+interface Campaign {
+  _id: string;
+  id?: string;
+  campaignId?: string;
+  title?: string;
+  name?: string;
+  status: string;
+  budget: number;
+  spent?: number;
+}
+
 // Advertiser Dashboard
 function AdvertiserDashboard() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string>('');
+
+  useEffect(() => {
+    // Get user data and fetch campaigns
+    if (typeof window !== 'undefined') {
+      const userStr = localStorage.getItem('user')
+      if (userStr) {
+        try {
+          const userData = JSON.parse(userStr)
+          setUserId(userData._id || userData.id)
+          fetchCampaigns(userData._id || userData.id)
+        } catch (e) {
+          console.error('Error parsing user data:', e)
+          setLoading(false)
+        }
+      } else {
+        setLoading(false)
+      }
+    }
+  }, []);
+
+  const fetchCampaigns = async (id: string) => {
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+      const url = `${backendUrl}/api/campaigns/advertiser/${id}`;
+      
+      console.log('📡 Fetching advertiser campaigns from:', url);
+      
+      const response = await fetch(url);
+      if (response.ok) {
+        const result = await response.json();
+        console.log('📊 Campaigns received:', result);
+        
+        const campaignsData = result.data?.campaigns || result.campaigns || result.data || [];
+        setCampaigns(campaignsData);
+        console.log(`✅ Loaded ${campaignsData.length} campaigns for advertiser`);
+      } else {
+        console.error('Failed to fetch campaigns:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching campaigns:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const activeCampaigns = campaigns.filter((c) => c.status === 'active').length;
+  const pausedCampaigns = campaigns.filter((c) => c.status === 'paused').length;
+  const completedCampaigns = campaigns.filter((c) => c.status === 'completed').length;
 
   return (
     <div className="p-6 space-y-6">
@@ -22,27 +85,32 @@ function AdvertiserDashboard() {
           <CardContent>
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-white font-mono">12</div>
+                <div className="text-2xl font-bold text-white font-mono">{activeCampaigns}</div>
                 <div className="text-xs text-neutral-500">Active</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-white font-mono">8</div>
-                <div className="text-xs text-neutral-500">Pending</div>
+                <div className="text-2xl font-bold text-white font-mono">{pausedCampaigns}</div>
+                <div className="text-xs text-neutral-500">Paused</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-white font-mono">45</div>
+                <div className="text-2xl font-bold text-white font-mono">{completedCampaigns}</div>
                 <div className="text-xs text-neutral-500">Completed</div>
               </div>
             </div>
 
             <div className="space-y-2">
-              {[
-                { id: "AD-001A", name: "SUMMER SALE 2024", status: "active", budget: "$5,000", spent: "$3,200" },
-                { id: "AD-002B", name: "CRYPTO DEFI LAUNCH", status: "pending", budget: "$3,000", spent: "$0" },
-                { id: "AD-003C", name: "NFT COLLECTION DROP", status: "completed", budget: "$2,000", spent: "$2,000" },
-              ].map((campaign) => (
+              {loading ? (
+                <div className="text-center text-neutral-500 py-4">
+                  Loading campaigns...
+                </div>
+              ) : campaigns.length === 0 ? (
+                <div className="text-center text-neutral-500 py-4">
+                  No campaigns yet
+                </div>
+              ) : (
+                campaigns.slice(0, 3).map((campaign) => (
                 <div
-                  key={campaign.id}
+                  key={campaign._id || campaign.id}
                   className="flex items-center justify-between p-2 bg-neutral-800 rounded hover:bg-neutral-700 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-3">
@@ -50,19 +118,25 @@ function AdvertiserDashboard() {
                       className={`w-2 h-2 rounded-full ${
                         campaign.status === "active"
                           ? "bg-white"
-                          : campaign.status === "pending"
+                          : campaign.status === "paused"
                             ? "bg-neutral-500"
                             : "bg-green-500"
                       }`}
                     ></div>
                     <div>
-                      <div className="text-xs text-white font-mono">{campaign.id}</div>
-                      <div className="text-xs text-neutral-500">{campaign.name}</div>
-                      <div className="text-xs text-orange-500">{campaign.spent} / {campaign.budget}</div>
+                      <div className="text-xs text-white font-mono">
+                        {campaign.campaignId || campaign._id?.slice(-6) || 'N/A'}
+                      </div>
+                      <div className="text-xs text-neutral-500 uppercase">
+                        {campaign.title || campaign.name || 'Untitled'}
+                      </div>
+                      <div className="text-xs text-orange-500">
+                        ${campaign.spent || 0} / ${campaign.budget || 0}
+                      </div>
                     </div>
                   </div>
                 </div>
-              ))}
+              )))}
             </div>
           </CardContent>
         </Card>
@@ -119,13 +193,136 @@ function AdvertiserDashboard() {
         </Card>
       </div>
 
+      {/* Campaigns Table */}
+      <Card className="bg-neutral-900 border-neutral-700">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">
+            MY CAMPAIGNS
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="text-center text-neutral-500 py-8">
+              <div className="animate-pulse">Loading campaigns...</div>
+            </div>
+          ) : campaigns.length === 0 ? (
+            <div className="text-center text-neutral-500 py-8">
+              <div className="text-lg mb-2">No campaigns yet</div>
+              <div className="text-sm">Create your first campaign to get started</div>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-neutral-700">
+                    <th className="text-left py-3 px-4 text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      Campaign ID
+                    </th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      Title
+                    </th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      Budget
+                    </th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      Spent
+                    </th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      Progress
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {campaigns.map((campaign) => {
+                    const spentAmount = campaign.spent || 0;
+                    const budgetAmount = campaign.budget || 0;
+                    const progressPercent = budgetAmount > 0 ? (spentAmount / budgetAmount) * 100 : 0;
+                    
+                    return (
+                      <tr
+                        key={campaign._id || campaign.id}
+                        className="border-b border-neutral-800 hover:bg-neutral-800/50 transition-colors cursor-pointer"
+                      >
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className={`w-2 h-2 rounded-full ${
+                                campaign.status === 'active'
+                                  ? 'bg-green-500'
+                                  : campaign.status === 'paused'
+                                    ? 'bg-yellow-500'
+                                    : campaign.status === 'completed'
+                                      ? 'bg-blue-500'
+                                      : 'bg-neutral-500'
+                              }`}
+                            ></div>
+                            <span className="text-xs text-white uppercase font-mono">
+                              {campaign.status}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-xs text-orange-500 font-mono">
+                            {campaign.campaignId || campaign._id?.slice(-8) || 'N/A'}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-sm text-white">
+                            {campaign.title || campaign.name || 'Untitled Campaign'}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-sm text-white font-mono">
+                            ${budgetAmount.toFixed(2)}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-sm text-orange-500 font-mono">
+                            ${spentAmount.toFixed(2)}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1 bg-neutral-800 rounded-full h-2 overflow-hidden">
+                              <div
+                                className={`h-full transition-all ${
+                                  progressPercent >= 90
+                                    ? 'bg-red-500'
+                                    : progressPercent >= 70
+                                      ? 'bg-yellow-500'
+                                      : 'bg-green-500'
+                                }`}
+                                style={{ width: `${Math.min(progressPercent, 100)}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-xs text-neutral-400 font-mono min-w-[3rem]">
+                              {progressPercent.toFixed(0)}%
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Create Campaign Modal */}
       <CreateCampaignModalDetailed
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={() => {
           setIsCreateModalOpen(false);
-          // Optionally refresh data or show success message
+          // Refresh campaigns after creating a new one
+          if (userId) {
+            fetchCampaigns(userId);
+          }
         }}
       />
     </div>
