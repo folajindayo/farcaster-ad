@@ -20,32 +20,68 @@ interface Campaign {
 function AdvertiserDashboardPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<string>('advertiser');
+  const [userId, setUserId] = useState<string>('');
 
   useEffect(() => {
-    // Log user data on mount
+    // Log user data on mount and get role
+    let userData: any = null;
     if (typeof window !== 'undefined') {
       const userStr = localStorage.getItem('user')
       if (userStr) {
         try {
-          const userData = JSON.parse(userStr)
+          userData = JSON.parse(userStr)
           console.log('👤 Dashboard loaded with user:', userData)
           console.log('🎭 Current Role:', userData.role)
+          setUserRole(userData.role)
+          setUserId(userData._id || userData.id)
         } catch (e) {
           console.error('Error parsing user data:', e)
         }
       }
     }
     
-    fetchCampaigns();
+    // Pass user data directly to fetch
+    if (userData) {
+      fetchCampaigns(userData.role, userData._id || userData.id);
+    } else {
+      fetchCampaigns();
+    }
   }, []);
 
-  const fetchCampaigns = async () => {
+  const fetchCampaigns = async (role?: string, id?: string) => {
     try {
-      const response = await fetch('/api/campaigns');
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+      let url = `${backendUrl}/api/campaigns`;
+      
+      const currentRole = role || userRole;
+      const currentUserId = id || userId;
+      
+      // Fetch different campaigns based on role
+      if (currentRole === 'advertiser' && currentUserId) {
+        // Advertiser: Get campaigns they created
+        url = `${backendUrl}/api/campaigns/advertiser/${currentUserId}`;
+        console.log('📡 Fetching advertiser campaigns for user:', currentUserId);
+      } else if (currentRole === 'host' && currentUserId) {
+        // Host: Get active campaigns on their account (TODO: implement endpoint)
+        // For now, fetch all active campaigns
+        url = `${backendUrl}/api/campaigns?status=active`;
+        console.log('📡 Fetching active campaigns for host');
+      }
+      
+      console.log('📡 Fetching campaigns from:', url);
+      
+      const response = await fetch(url);
       if (response.ok) {
         const result = await response.json();
-        // Backend returns data.campaigns
-        setCampaigns(result.data?.campaigns || []);
+        console.log('📊 Campaigns received:', result);
+        
+        // Handle different response structures
+        const campaignsData = result.data?.campaigns || result.campaigns || result.data || [];
+        setCampaigns(campaignsData);
+        console.log(`✅ Loaded ${campaignsData.length} campaigns for ${currentRole}`);
+      } else {
+        console.error('Failed to fetch campaigns:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error fetching campaigns:', error);
