@@ -1,5 +1,5 @@
 import express from 'express';
-import { generateNonce, verifyFarcasterAuth } from '../services/farcasterAuth';
+import { generateNonce, verifyFarcasterAuth, authenticateJWT } from '../services/farcasterAuth';
 import { User } from '../models';
 
 const router = express.Router();
@@ -147,10 +147,8 @@ router.get('/user', async (req, res) => {
  * @swagger
  * /auth/update-role:
  *   post:
- *     summary: Update user role
+ *     summary: Update user role (switch between advertiser, host, operator)
  *     tags: [Authentication]
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -159,10 +157,13 @@ router.get('/user', async (req, res) => {
  *             type: object
  *             required:
  *               - role
+ *               - farcasterId
  *             properties:
  *               role:
  *                 type: string
  *                 enum: [advertiser, host, operator]
+ *               farcasterId:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Role updated successfully
@@ -171,17 +172,17 @@ router.get('/user', async (req, res) => {
  */
 router.post('/update-role', async (req, res) => {
   try {
-    if (!req.user || !req.user.userId) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
+    const { role, farcasterId } = req.body;
 
-    const { role } = req.body;
+    if (!farcasterId || !role) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
 
     if (!['advertiser', 'host', 'operator'].includes(role)) {
       return res.status(400).json({ message: 'Invalid role' });
     }
 
-    const user = await User.findById(req.user.userId);
+    const user = await User.findOne({ farcasterId });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -190,7 +191,14 @@ router.post('/update-role', async (req, res) => {
     user.role = role;
     await user.save();
 
-    res.json({ message: 'Role updated successfully', user });
+    // Generate new token with updated role
+    const token = Buffer.from(`${user._id}:${user.farcasterId}:${user.role}`).toString('base64');
+
+    res.json({ 
+      message: 'Role updated successfully', 
+      user,
+      token 
+    });
   } catch (error) {
     console.error('Error updating role:', error);
     res.status(500).json({ message: 'Failed to update role' });

@@ -339,6 +339,8 @@ export default function RoleBasedDashboard({
   const router = useRouter()
   const [activeSection, setActiveSection] = useState("overview")
   const [user, setUser] = useState<any>(null)
+  const [showRoleSwitcher, setShowRoleSwitcher] = useState(false)
+  const [switchingRole, setSwitchingRole] = useState(false)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -358,6 +360,45 @@ export default function RoleBasedDashboard({
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       router.push('/')
+    }
+  }
+
+  const handleSwitchRole = async (newRole: 'advertiser' | 'host' | 'operator') => {
+    if (!user) return
+    
+    setSwitchingRole(true)
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
+      const response = await fetch(`${backendUrl}/api/auth/update-role`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          role: newRole,
+          farcasterId: user.farcasterId
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        
+        // Update localStorage with new user data and token
+        localStorage.setItem('user', JSON.stringify(data.user))
+        localStorage.setItem('token', data.token)
+        
+        // Reload the page to reflect new role
+        window.location.reload()
+      } else {
+        console.error('Failed to switch role')
+        alert('Failed to switch role. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error switching role:', error)
+      alert('Failed to switch role. Please try again.')
+    } finally {
+      setSwitchingRole(false)
+      setShowRoleSwitcher(false)
     }
   }
 
@@ -484,11 +525,11 @@ export default function RoleBasedDashboard({
               
               <div className="space-y-2">
                 <button
-                  onClick={handleSignOut}
+                  onClick={() => setShowRoleSwitcher(true)}
                   className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded text-sm font-medium bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 hover:text-orange-300 border border-orange-500/30 transition-all duration-200"
                 >
                   <UserPlus className="h-4 w-4" />
-                  <span>Switch User</span>
+                  <span>Switch Role</span>
                 </button>
                 
                 <button
@@ -534,6 +575,87 @@ export default function RoleBasedDashboard({
           {getDashboardContent()}
         </div>
       </div>
+
+      {/* Role Switcher Modal */}
+      {showRoleSwitcher && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setShowRoleSwitcher(false)}>
+          <div className="bg-neutral-900 border border-orange-500/30 rounded-lg p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-xl font-bold text-white mb-2">Switch Role</h2>
+            <p className="text-sm text-neutral-400 mb-6">
+              Choose your role to access different dashboards and features
+            </p>
+            
+            <div className="space-y-3">
+              <button
+                onClick={() => handleSwitchRole('advertiser')}
+                disabled={switchingRole || userRole === 'advertiser'}
+                className={`w-full p-4 rounded border transition-all text-left ${
+                  userRole === 'advertiser'
+                    ? 'bg-orange-500/20 border-orange-500 text-orange-400'
+                    : 'bg-neutral-800 border-neutral-700 text-white hover:border-orange-500 hover:bg-neutral-700'
+                } disabled:opacity-50`}
+              >
+                <div className="font-medium text-lg">Advertiser</div>
+                <div className="text-sm text-neutral-400 mt-1">
+                  Create and manage ad campaigns
+                </div>
+                {userRole === 'advertiser' && (
+                  <div className="text-xs text-orange-400 mt-2">● Current Role</div>
+                )}
+              </button>
+
+              <button
+                onClick={() => handleSwitchRole('host')}
+                disabled={switchingRole || userRole === 'host'}
+                className={`w-full p-4 rounded border transition-all text-left ${
+                  userRole === 'host'
+                    ? 'bg-orange-500/20 border-orange-500 text-orange-400'
+                    : 'bg-neutral-800 border-neutral-700 text-white hover:border-orange-500 hover:bg-neutral-700'
+                } disabled:opacity-50`}
+              >
+                <div className="font-medium text-lg">Host</div>
+                <div className="text-sm text-neutral-400 mt-1">
+                  Earn by displaying ads on your profile
+                </div>
+                {userRole === 'host' && (
+                  <div className="text-xs text-orange-400 mt-2">● Current Role</div>
+                )}
+              </button>
+
+              <button
+                onClick={() => handleSwitchRole('operator')}
+                disabled={switchingRole || userRole === 'operator'}
+                className={`w-full p-4 rounded border transition-all text-left ${
+                  userRole === 'operator'
+                    ? 'bg-orange-500/20 border-orange-500 text-orange-400'
+                    : 'bg-neutral-800 border-neutral-700 text-white hover:border-orange-500 hover:bg-neutral-700'
+                } disabled:opacity-50`}
+              >
+                <div className="font-medium text-lg">Operator</div>
+                <div className="text-sm text-neutral-400 mt-1">
+                  Manage platform operations and settlements
+                </div>
+                {userRole === 'operator' && (
+                  <div className="text-xs text-orange-400 mt-2">● Current Role</div>
+                )}
+              </button>
+            </div>
+
+            <button
+              onClick={() => setShowRoleSwitcher(false)}
+              className="w-full mt-4 px-4 py-2 rounded bg-neutral-800 text-neutral-400 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+
+            {switchingRole && (
+              <div className="mt-4 text-center text-sm text-orange-400">
+                Switching role...
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
