@@ -394,6 +394,128 @@ function AdvertiserDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Campaigns Table */}
+      <Card className="bg-neutral-900 border-neutral-700">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium text-neutral-300 tracking-wider">
+            {userRole === 'advertiser' ? 'MY CAMPAIGNS' : userRole === 'host' ? 'ACTIVE CAMPAIGNS' : 'ALL CAMPAIGNS'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="text-center text-neutral-500 py-8">
+              <div className="animate-pulse">Loading campaigns...</div>
+            </div>
+          ) : campaigns.length === 0 ? (
+            <div className="text-center text-neutral-500 py-8">
+              <div className="text-lg mb-2">No campaigns yet</div>
+              {userRole === 'advertiser' && (
+                <div className="text-sm">Create your first campaign to get started</div>
+              )}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-neutral-700">
+                    <th className="text-left py-3 px-4 text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      Campaign ID
+                    </th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      Title
+                    </th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      Budget
+                    </th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      Spent
+                    </th>
+                    <th className="text-left py-3 px-4 text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                      Progress
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {campaigns.map((campaign) => {
+                    const spentAmount = campaign.spent || 0;
+                    const budgetAmount = campaign.budget || 0;
+                    const progressPercent = budgetAmount > 0 ? (spentAmount / budgetAmount) * 100 : 0;
+                    
+                    return (
+                      <tr
+                        key={campaign._id || campaign.id}
+                        className="border-b border-neutral-800 hover:bg-neutral-800/50 transition-colors cursor-pointer"
+                      >
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className={`w-2 h-2 rounded-full ${
+                                campaign.status === 'active'
+                                  ? 'bg-green-500'
+                                  : campaign.status === 'paused'
+                                    ? 'bg-yellow-500'
+                                    : campaign.status === 'completed'
+                                      ? 'bg-blue-500'
+                                      : 'bg-neutral-500'
+                              }`}
+                            ></div>
+                            <span className="text-xs text-white uppercase font-mono">
+                              {campaign.status}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-xs text-orange-500 font-mono">
+                            {campaign.campaignId || campaign._id?.slice(-8) || 'N/A'}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-sm text-white">
+                            {campaign.title || campaign.name || 'Untitled Campaign'}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-sm text-white font-mono">
+                            ${budgetAmount.toFixed(2)}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-sm text-orange-500 font-mono">
+                            ${spentAmount.toFixed(2)}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="flex-1 bg-neutral-800 rounded-full h-2 overflow-hidden">
+                              <div
+                                className={`h-full transition-all ${
+                                  progressPercent >= 90
+                                    ? 'bg-red-500'
+                                    : progressPercent >= 70
+                                      ? 'bg-yellow-500'
+                                      : 'bg-green-500'
+                                }`}
+                                style={{ width: `${Math.min(progressPercent, 100)}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-xs text-neutral-400 font-mono min-w-[3rem]">
+                              {progressPercent.toFixed(0)}%
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
