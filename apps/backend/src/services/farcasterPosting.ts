@@ -1,4 +1,5 @@
 import { Campaign, Host, AdPlacement } from '../models';
+import { NeynarAPIClient, Configuration } from '@neynar/nodejs-sdk';
 
 interface CastOptions {
   text: string;
@@ -13,8 +14,24 @@ interface ProfileBannerOptions {
 /**
  * Farcaster Posting Service
  * Handles posting ads to Farcaster on behalf of hosts
+ * Now with REAL Neynar API integration!
  */
 class FarcasterPostingService {
+  private neynarClient: NeynarAPIClient | null = null;
+  
+  constructor() {
+    // Initialize Neynar client if API key is available
+    const apiKey = process.env.NEYNAR_API_KEY;
+    if (apiKey) {
+      const config = new Configuration({
+        apiKey: apiKey,
+      });
+      this.neynarClient = new NeynarAPIClient(config);
+      console.log('✅ Neynar API client initialized');
+    } else {
+      console.warn('⚠️  NEYNAR_API_KEY not set - using mock posting');
+    }
+  }
   /**
    * Post an ad cast (pinned cast) to a host's Farcaster profile
    */
@@ -262,19 +279,63 @@ class FarcasterPostingService {
   }
 
   /**
-   * Post cast to Farcaster (via SDK or API)
+   * Post cast to Farcaster (via Neynar API)
    */
   private async postCastToFarcaster(fid: number, options: CastOptions): Promise<string> {
-    // TODO: Implement actual Farcaster API/SDK call
-    // For now, simulate with a mock hash
     console.log(`📡 Posting to Farcaster for FID ${fid}:`, options);
     
-    // This would use the Farcaster Hub API or SDK
-    // Example: await farcasterClient.submitCast({ fid, text: options.text, embeds: options.embeds });
+    // Get host's signer UUID
+    const host = await Host.findOne({ farcasterId: fid });
+    if (!host) {
+      throw new Error(`Host with FID ${fid} not found`);
+    }
     
-    // Return mock cast hash for now
-    const mockHash = `0x${Date.now().toString(16)}${Math.random().toString(16).slice(2, 10)}`;
-    return mockHash;
+    // Check if we have a signer
+    const signerUuid = (host as any).signerUuid;
+    
+    if (!this.neynarClient) {
+      console.warn('⚠️  Neynar API not configured - returning mock hash');
+      const mockHash = `0x${Date.now().toString(16)}${Math.random().toString(16).slice(2, 10)}`;
+      return mockHash;
+    }
+    
+    if (!signerUuid) {
+      console.warn(`⚠️  Host FID ${fid} has not authorized a signer yet`);
+      console.log('   Host needs to authorize posting via: /host/dashboard -> Authorize Posting');
+      
+      // Return mock hash for now
+      const mockHash = `0x${Date.now().toString(16)}${Math.random().toString(16).slice(2, 10)}`;
+      return mockHash;
+    }
+    
+    try {
+      // REAL API CALL TO NEYNAR
+      console.log(`🚀 Publishing cast via Neynar for signer: ${signerUuid}`);
+      
+      const embeds = options.embeds?.map(url => ({ url })) || [];
+      
+      const response = await this.neynarClient.publishCast(
+        signerUuid,
+        options.text,
+        {
+          embeds: embeds.length > 0 ? embeds : undefined
+        }
+      );
+      
+      console.log(`✅ Cast published successfully! Hash: ${response.cast.hash}`);
+      console.log(`   View at: https://warpcast.com/${host.username}/${response.cast.hash.slice(0, 10)}`);
+      
+      return response.cast.hash;
+    } catch (error: any) {
+      console.error('❌ Failed to post cast via Neynar:', error.message);
+      
+      // If signer is invalid, clear it
+      if (error.message?.includes('signer') || error.message?.includes('unauthorized')) {
+        console.log('   Signer may be invalid - host needs to re-authorize');
+      }
+      
+      throw error;
+    }
   }
 
   /**

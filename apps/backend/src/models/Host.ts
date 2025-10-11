@@ -26,6 +26,10 @@ export interface IHost extends Document {
   miniAppPermissionsGranted: boolean;
   lastPermissionUpdate?: Date;
   
+  // Neynar Signer (for posting on behalf of host)
+  signerUuid?: string;
+  signerAuthorizedAt?: Date;
+  
   // Legacy
   isActive: boolean;
   preferences: Record<string, unknown>;
@@ -105,6 +109,16 @@ const HostSchema = new Schema<IHost>({
   },
   lastPermissionUpdate: {
     type: Date
+  },
+  
+  // Neynar Signer (for posting on behalf of host)
+  signerUuid: {
+    type: String,
+    required: false
+  },
+  signerAuthorizedAt: {
+    type: Date,
+    required: false
   },
   
   // Legacy fields (keep for backward compatibility)

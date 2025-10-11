@@ -601,10 +601,15 @@ export default function RoleBasedDashboard({
         localStorage.setItem('token', data.token)
         
         console.log('💾 LocalStorage updated')
-        console.log('🔄 Reloading page...')
         
-        // Reload the page to reflect new role
-        window.location.reload()
+        // Redirect based on new role
+        if (newRole === 'host') {
+          console.log('🏠 Redirecting to Host Dashboard...')
+          window.location.href = '/host/dashboard'
+        } else {
+          console.log('🔄 Reloading page...')
+          window.location.reload()
+        }
       } else {
         console.error('Failed to switch role')
         alert('Failed to switch role. Please try again.')
@@ -676,9 +681,9 @@ export default function RoleBasedDashboard({
 
   return (
     <div className="flex h-screen">
-      {/* Sidebar */}
+      {/* Sidebar - Hidden on mobile, visible on desktop */}
       <div
-        className={`${sidebarCollapsed ? "w-16" : "w-70"} bg-neutral-900 border-r border-neutral-700 transition-all duration-300 fixed md:relative z-50 md:z-auto h-full md:h-auto ${!sidebarCollapsed ? "md:block" : ""}`}
+        className={`hidden md:flex ${sidebarCollapsed ? "w-16" : "w-70"} bg-neutral-900 border-r border-neutral-700 transition-all duration-300`}
       >
         <div className="p-4">
           <div className="flex items-center justify-between mb-8">
@@ -761,13 +766,8 @@ export default function RoleBasedDashboard({
         </div>
       </div>
 
-      {/* Mobile Overlay */}
-      {!sidebarCollapsed && (
-        <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarCollapsed(true)} />
-      )}
-
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col ${!sidebarCollapsed ? "md:ml-0" : ""}`}>
+      <div className="flex-1 flex flex-col pb-16 md:pb-0">
         {/* Top Toolbar */}
         <div className="h-16 bg-neutral-800 border-b border-neutral-700 flex items-center justify-between px-6">
           <div className="flex items-center gap-4">
@@ -869,6 +869,26 @@ export default function RoleBasedDashboard({
           </div>
         </div>
       )}
+
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-neutral-900 border-t border-neutral-700 z-50 safe-area-inset-bottom">
+        <nav className="flex justify-around items-center h-16">
+          {getNavigationItems().map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveSection(item.id)}
+              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+                activeSection === item.id
+                  ? "text-orange-500"
+                  : "text-neutral-400"
+              }`}
+            >
+              <item.icon className="w-6 h-6 mb-1" />
+              <span className="text-xs font-medium">{item.label.split(' ')[0]}</span>
+            </button>
+          ))}
+        </nav>
+      </div>
     </div>
   )
 }

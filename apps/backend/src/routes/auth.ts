@@ -79,11 +79,17 @@ router.post('/verify', async (req, res) => {
       displayName, 
       pfpUrl, 
       custody, 
-      verifications 
+      verifications,
+      role // Accept role from frontend
     } = req.body;
 
     if (!message || !signature || !fid) {
       return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    // Validate role if provided
+    if (role && !['advertiser', 'host'].includes(role)) {
+      return res.status(400).json({ message: 'Invalid role' });
     }
 
     const result = await verifyFarcasterAuth(
@@ -94,7 +100,8 @@ router.post('/verify', async (req, res) => {
       displayName,
       pfpUrl,
       custody,
-      verifications
+      verifications,
+      role // Pass role to auth service
     );
     res.json(result);
   } catch (error) {

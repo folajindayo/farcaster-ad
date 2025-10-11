@@ -282,18 +282,18 @@ export function CreateCampaignModalDetailed({
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-      <div className="bg-dark-800 border border-cyber-500 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
+      <div className="bg-neutral-900 border border-orange-500/30 rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative">
         {/* Success Overlay */}
         {showSuccess && (
-          <div className="absolute inset-0 bg-dark-900/95 backdrop-blur-sm flex items-center justify-center z-50 rounded-xl">
+          <div className="absolute inset-0 bg-black/95 backdrop-blur-sm flex items-center justify-center z-50 rounded-xl">
             <div className="text-center">
               <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
                 <CheckCircle className="w-12 h-12 text-green-500" />
               </div>
-              <h3 className="text-2xl font-bold text-cyber-100 mb-2">
+              <h3 className="text-2xl font-bold text-white mb-2">
                 Campaign Created Successfully!
               </h3>
-              <p className="text-cyber-300">
+              <p className="text-neutral-400">
                 Your campaign is now live and ready to reach your audience
               </p>
             </div>
@@ -304,16 +304,16 @@ export function CreateCampaignModalDetailed({
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-cyber-100">
+              <h2 className="text-2xl font-bold text-white">
                 Create Campaign
               </h2>
-              <p className="text-cyber-300 text-sm">Step {step} of 5</p>
+              <p className="text-neutral-400 text-sm">Step {step} of 5</p>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={onClose}
-              className="text-cyber-300 hover:text-cyber-100"
+              className="text-neutral-400 hover:text-white"
             >
               <X className="w-5 h-5" />
             </Button>
@@ -326,7 +326,7 @@ export function CreateCampaignModalDetailed({
                 <div
                   key={stepNum}
                   className={`h-2 flex-1 rounded-full ${
-                    stepNum <= step ? 'bg-cyber-500' : 'bg-dark-700'
+                    stepNum <= step ? 'bg-orange-500' : 'bg-neutral-800'
                   }`}
                 />
               ))}
@@ -337,19 +337,19 @@ export function CreateCampaignModalDetailed({
           <div className="space-y-6">
             {step === 1 && (
               <div className="space-y-6">
-                <Card className="bg-dark-700 border-cyber-600">
+                <Card className="bg-neutral-800 border-neutral-700">
                   <CardHeader>
-                    <CardTitle className="text-cyber-100 flex items-center gap-2">
+                    <CardTitle className="text-white flex items-center gap-2">
                       <Pin className="w-5 h-5" />
                       Campaign Details
                     </CardTitle>
-                    <CardDescription className="text-cyber-300">
+                    <CardDescription className="text-neutral-400">
                       Set up your campaign basics
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <Label htmlFor="name" className="text-cyber-200">
+                      <Label htmlFor="name" className="text-neutral-300">
                         Campaign Name <span className="text-red-500">*</span>
                       </Label>
                       <Input
@@ -360,7 +360,7 @@ export function CreateCampaignModalDetailed({
                           if (errors.name) setErrors({ ...errors, name: '' });
                         }}
                         placeholder="e.g., Base Summer Drop, NFT Launch Awareness"
-                        className={`bg-dark-600 border-cyber-500 text-cyber-100 placeholder:text-cyber-400 ${
+                        className={`bg-neutral-900 border-neutral-600 text-white placeholder:text-neutral-500 ${
                           errors.name ? 'border-red-500' : ''
                         }`}
                       />
@@ -372,17 +372,17 @@ export function CreateCampaignModalDetailed({
                     </div>
 
                     <div>
-                      <Label className="text-cyber-200">Objective</Label>
+                      <Label className="text-neutral-300">Objective</Label>
                       <Select
                         value={form.objective}
                         onValueChange={(value: any) =>
                           setForm({ ...form, objective: value })
                         }
                       >
-                        <SelectTrigger className="bg-dark-600 border-cyber-500 text-cyber-100">
+                        <SelectTrigger className="bg-neutral-900 border-neutral-600 text-white">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-dark-700 border-cyber-500">
+                        <SelectContent className="bg-neutral-800 border-neutral-700">
                           <SelectItem value="awareness">Awareness</SelectItem>
                           <SelectItem value="engagement">Engagement</SelectItem>
                           <SelectItem value="conversions">
@@ -393,7 +393,7 @@ export function CreateCampaignModalDetailed({
                     </div>
 
                     <div>
-                      <Label className="text-cyber-200">Ad Type</Label>
+                      <Label className="text-neutral-300">Ad Type</Label>
                       <div className="grid grid-cols-3 gap-3 mt-2">
                         {[
                           {
@@ -418,8 +418,8 @@ export function CreateCampaignModalDetailed({
                             }
                             className={`h-auto p-4 flex flex-col items-center gap-2 ${
                               form.adType === value
-                                ? 'bg-cyber-500 text-white border-cyber-500'
-                                : 'bg-dark-600 border-cyber-500 text-cyber-200 hover:bg-dark-500'
+                                ? 'bg-orange-500 text-white border-orange-500'
+                                : 'bg-neutral-900 border-neutral-600 text-neutral-300 hover:bg-neutral-800'
                             }`}
                           >
                             <Icon className="w-5 h-5" />
@@ -435,20 +435,20 @@ export function CreateCampaignModalDetailed({
 
             {step === 2 && (
               <div className="space-y-6">
-                <Card className="bg-dark-700 border-cyber-600">
+                <Card className="bg-neutral-800 border-neutral-700">
                   <CardHeader>
-                    <CardTitle className="text-cyber-100 flex items-center gap-2">
+                    <CardTitle className="text-white flex items-center gap-2">
                       <Calendar className="w-5 h-5" />
                       Targeting & Duration
                     </CardTitle>
-                    <CardDescription className="text-cyber-300">
+                    <CardDescription className="text-neutral-400">
                       Set your campaign duration and target audience
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="duration" className="text-cyber-200">
+                        <Label htmlFor="duration" className="text-neutral-300">
                           Duration
                         </Label>
                         <Input
@@ -461,21 +461,21 @@ export function CreateCampaignModalDetailed({
                               duration: parseInt(e.target.value) || 0,
                             })
                           }
-                          className="bg-dark-600 border-cyber-500 text-cyber-100"
+                          className="bg-neutral-900 border-neutral-600 text-white"
                         />
                       </div>
                       <div>
-                        <Label className="text-cyber-200">Unit</Label>
+                        <Label className="text-neutral-300">Unit</Label>
                         <Select
                           value={form.durationUnit}
                           onValueChange={(value: any) =>
                             setForm({ ...form, durationUnit: value })
                           }
                         >
-                          <SelectTrigger className="bg-dark-600 border-cyber-500 text-cyber-100">
+                          <SelectTrigger className="bg-neutral-900 border-neutral-600 text-white">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-dark-700 border-cyber-500">
+                          <SelectContent className="bg-neutral-800 border-neutral-700">
                             <SelectItem value="days">Days</SelectItem>
                             <SelectItem value="weeks">Weeks</SelectItem>
                           </SelectContent>
@@ -486,7 +486,7 @@ export function CreateCampaignModalDetailed({
                     <div>
                       <Label
                         htmlFor="targetAudience"
-                        className="text-cyber-200"
+                        className="text-neutral-300"
                       >
                         Target Audience (optional)
                       </Label>
@@ -497,12 +497,12 @@ export function CreateCampaignModalDetailed({
                           setForm({ ...form, targetAudience: e.target.value })
                         }
                         placeholder="e.g., Crypto builders, Design/Tech creators"
-                        className="bg-dark-600 border-cyber-500 text-cyber-100 placeholder:text-cyber-400"
+                        className="bg-neutral-900 border-neutral-600 text-white placeholder:text-neutral-500"
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="followerRange" className="text-cyber-200">
+                      <Label htmlFor="followerRange" className="text-neutral-300">
                         Follower Range (optional)
                       </Label>
                       <Input
@@ -512,7 +512,7 @@ export function CreateCampaignModalDetailed({
                           setForm({ ...form, followerRange: e.target.value })
                         }
                         placeholder="e.g., 10k+ followers"
-                        className="bg-dark-600 border-cyber-500 text-cyber-100 placeholder:text-cyber-400"
+                        className="bg-neutral-900 border-neutral-600 text-white placeholder:text-neutral-500"
                       />
                     </div>
                   </CardContent>
@@ -522,19 +522,19 @@ export function CreateCampaignModalDetailed({
 
             {step === 3 && (
               <div className="space-y-6">
-                <Card className="bg-dark-700 border-cyber-600">
+                <Card className="bg-neutral-800 border-neutral-700">
                   <CardHeader>
-                    <CardTitle className="text-cyber-100 flex items-center gap-2">
+                    <CardTitle className="text-white flex items-center gap-2">
                       <DollarCircle className="w-5 h-5" />
                       Budget & Payment
                     </CardTitle>
-                    <CardDescription className="text-cyber-300">
+                    <CardDescription className="text-neutral-400">
                       Set your budget and pricing model
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <Label htmlFor="budget" className="text-cyber-200">
+                      <Label htmlFor="budget" className="text-neutral-300">
                         Budget (USDC) <span className="text-red-500">*</span>
                       </Label>
                       <Input
@@ -547,7 +547,7 @@ export function CreateCampaignModalDetailed({
                             setErrors({ ...errors, budget: '' });
                         }}
                         placeholder="1000"
-                        className={`bg-dark-600 border-cyber-500 text-cyber-100 ${
+                        className={`bg-neutral-900 border-neutral-600 text-white ${
                           errors.budget ? 'border-red-500' : ''
                         }`}
                       />
@@ -556,14 +556,14 @@ export function CreateCampaignModalDetailed({
                           {errors.budget}
                         </p>
                       ) : (
-                        <p className="text-cyber-400 text-sm mt-1">
+                        <p className="text-neutral-500 text-sm mt-1">
                           Payment occurs on-chain (Base network)
                         </p>
                       )}
                     </div>
 
                     <div>
-                      <Label className="text-cyber-200">Pricing Model</Label>
+                      <Label className="text-neutral-300">Pricing Model</Label>
                       <div className="grid grid-cols-2 gap-3 mt-2">
                         <Button
                           variant={
@@ -574,8 +574,8 @@ export function CreateCampaignModalDetailed({
                           }
                           className={`h-auto p-4 ${
                             form.pricingModel === 'time'
-                              ? 'bg-cyber-500 text-white border-cyber-500'
-                              : 'bg-dark-600 border-cyber-500 text-cyber-200 hover:bg-dark-500'
+                              ? 'bg-orange-500 text-white border-orange-500'
+                              : 'bg-neutral-900 border-neutral-600 text-neutral-300 hover:bg-neutral-800'
                           }`}
                         >
                           <div className="text-center">
@@ -596,8 +596,8 @@ export function CreateCampaignModalDetailed({
                           }
                           className={`h-auto p-4 ${
                             form.pricingModel === 'impression'
-                              ? 'bg-cyber-500 text-white border-cyber-500'
-                              : 'bg-dark-600 border-cyber-500 text-cyber-200 hover:bg-dark-500'
+                              ? 'bg-orange-500 text-white border-orange-500'
+                              : 'bg-neutral-900 border-neutral-600 text-neutral-300 hover:bg-neutral-800'
                           }`}
                         >
                           <div className="text-center">
@@ -614,7 +614,7 @@ export function CreateCampaignModalDetailed({
 
                     {form.pricingModel === 'impression' && (
                       <div>
-                        <Label htmlFor="cpm" className="text-cyber-200">
+                        <Label htmlFor="cpm" className="text-neutral-300">
                           CPM (Cost Per Mille)
                         </Label>
                         <Input
@@ -626,7 +626,7 @@ export function CreateCampaignModalDetailed({
                             setForm({ ...form, cpm: e.target.value })
                           }
                           placeholder="5.00"
-                          className="bg-dark-600 border-cyber-500 text-cyber-100"
+                          className="bg-neutral-900 border-neutral-600 text-white"
                         />
                       </div>
                     )}
@@ -637,19 +637,19 @@ export function CreateCampaignModalDetailed({
 
             {step === 4 && (
               <div className="space-y-6">
-                <Card className="bg-dark-700 border-cyber-600">
+                <Card className="bg-neutral-800 border-neutral-700">
                   <CardHeader>
-                    <CardTitle className="text-cyber-100 flex items-center gap-2">
+                    <CardTitle className="text-white flex items-center gap-2">
                       <Upload className="w-5 h-5" />
                       Media & CTA
                     </CardTitle>
-                    <CardDescription className="text-cyber-300">
+                    <CardDescription className="text-neutral-400">
                       Upload your creative assets and set up call-to-action
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <Label htmlFor="mediaUrl" className="text-cyber-200">
+                      <Label htmlFor="mediaUrl" className="text-neutral-300">
                         Banner Image <span className="text-red-500">*</span>
                       </Label>
 
@@ -659,13 +659,13 @@ export function CreateCampaignModalDetailed({
                           <img
                             src={imagePreview}
                             alt="Preview"
-                            className="max-h-48 rounded-lg border border-cyber-500"
+                            className="max-h-48 rounded-lg border border-neutral-700"
                           />
                           {uploadingImage && (
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-lg">
                               <div className="text-center">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neon-cyan mx-auto mb-2"></div>
-                                <p className="text-neon-cyan text-sm">Uploading...</p>
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto mb-2"></div>
+                                <p className="text-orange-500 text-sm">Uploading...</p>
                               </div>
                             </div>
                           )}
@@ -678,7 +678,7 @@ export function CreateCampaignModalDetailed({
                                 setImagePreview('');
                                 setForm({ ...form, mediaUrl: '' });
                               }}
-                              className="absolute top-2 right-2 bg-dark-800/90 border-cyber-500 text-cyber-300 hover:bg-dark-700"
+                              className="absolute top-2 right-2 bg-neutral-900/90 border-neutral-600 text-neutral-300 hover:bg-neutral-800"
                             >
                               <X className="w-4 h-4" />
                             </Button>
@@ -692,14 +692,14 @@ export function CreateCampaignModalDetailed({
                           className={`mt-2 border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
                             errors.mediaUrl
                               ? 'border-red-500 bg-red-500/5'
-                              : 'border-cyber-500 bg-dark-700 hover:bg-dark-600'
+                              : 'border-neutral-600 bg-neutral-900 hover:bg-neutral-800'
                           }`}
                         >
-                          <Upload className="w-12 h-12 mx-auto mb-3 text-cyber-400" />
-                          <p className="text-cyber-200 font-medium mb-1">
+                          <Upload className="w-12 h-12 mx-auto mb-3 text-neutral-500" />
+                          <p className="text-neutral-300 font-medium mb-1">
                             Click to upload banner image
                           </p>
-                          <p className="text-cyber-400 text-sm">
+                          <p className="text-neutral-500 text-sm">
                             PNG, JPG or GIF (max 5MB)
                           </p>
                         </div>
@@ -721,7 +721,7 @@ export function CreateCampaignModalDetailed({
                     </div>
 
                     <div>
-                      <Label htmlFor="ctaUrl" className="text-cyber-200">
+                      <Label htmlFor="ctaUrl" className="text-neutral-300">
                         Call to Action Link{' '}
                         <span className="text-red-500">*</span>
                       </Label>
@@ -734,7 +734,7 @@ export function CreateCampaignModalDetailed({
                             setErrors({ ...errors, ctaUrl: '' });
                         }}
                         placeholder="e.g., project site, campaign page, mint link"
-                        className={`bg-dark-600 border-cyber-500 text-cyber-100 placeholder:text-cyber-400 ${
+                        className={`bg-neutral-900 border-neutral-600 text-white placeholder:text-neutral-500 ${
                           errors.ctaUrl ? 'border-red-500' : ''
                         }`}
                       />
@@ -746,7 +746,7 @@ export function CreateCampaignModalDetailed({
                     </div>
 
                     <div>
-                      <Label htmlFor="ctaText" className="text-cyber-200">
+                      <Label htmlFor="ctaText" className="text-neutral-300">
                         CTA Button Text <span className="text-red-500">*</span>
                       </Label>
                       <Input
@@ -758,7 +758,7 @@ export function CreateCampaignModalDetailed({
                             setErrors({ ...errors, ctaText: '' });
                         }}
                         placeholder="Learn More"
-                        className={`bg-dark-600 border-cyber-500 text-cyber-100 placeholder:text-cyber-400 ${
+                        className={`bg-neutral-900 border-neutral-600 text-white placeholder:text-neutral-500 ${
                           errors.ctaText ? 'border-red-500' : ''
                         }`}
                       />
@@ -775,39 +775,39 @@ export function CreateCampaignModalDetailed({
 
             {step === 5 && (
               <div className="space-y-6">
-                <Card className="bg-dark-700 border-cyber-600">
+                <Card className="bg-neutral-800 border-neutral-700">
                   <CardHeader>
-                    <CardTitle className="text-cyber-100 flex items-center gap-2">
+                    <CardTitle className="text-white flex items-center gap-2">
                       <CheckCircle className="w-5 h-5" />
                       Review & Launch
                     </CardTitle>
-                    <CardDescription className="text-cyber-300">
+                    <CardDescription className="text-neutral-400">
                       Review your campaign details before launching
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <h4 className="text-cyber-200 font-semibold">
+                        <h4 className="text-neutral-300 font-semibold">
                           Campaign Details
                         </h4>
                         <div className="space-y-1 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-cyber-400">Name:</span>
-                            <span className="text-cyber-100">{form.name}</span>
+                            <span className="text-neutral-500">Name:</span>
+                            <span className="text-white">{form.name}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-cyber-400">Objective:</span>
+                            <span className="text-neutral-500">Objective:</span>
                             <Badge
                               variant="outline"
-                              className="border-cyber-500 text-cyber-300"
+                              className="border-neutral-600 text-neutral-300"
                             >
                               {form.objective}
                             </Badge>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-cyber-400">Ad Type:</span>
-                            <span className="text-cyber-100">
+                            <span className="text-neutral-500">Ad Type:</span>
+                            <span className="text-white">
                               {form.adType}
                             </span>
                           </div>
@@ -815,27 +815,27 @@ export function CreateCampaignModalDetailed({
                       </div>
 
                       <div className="space-y-2">
-                        <h4 className="text-cyber-200 font-semibold">
+                        <h4 className="text-neutral-300 font-semibold">
                           Duration & Cost
                         </h4>
                         <div className="space-y-1 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-cyber-400">Duration:</span>
-                            <span className="text-cyber-100">
+                            <span className="text-neutral-500">Duration:</span>
+                            <span className="text-white">
                               {form.duration} {form.durationUnit}
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-cyber-400">Cost:</span>
-                            <span className="text-cyber-100">
+                            <span className="text-neutral-500">Cost:</span>
+                            <span className="text-white">
                               {calculateCost()}
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-cyber-400">
+                            <span className="text-neutral-500">
                               Available Slots:
                             </span>
-                            <span className="text-cyber-100">
+                            <span className="text-white">
                               {getAvailableSlots()} creators
                             </span>
                           </div>
@@ -844,23 +844,23 @@ export function CreateCampaignModalDetailed({
                     </div>
 
                     {form.targetAudience && (
-                      <div className="pt-4 border-t border-cyber-600">
-                        <h4 className="text-cyber-200 font-semibold mb-2">
+                      <div className="pt-4 border-t border-neutral-700">
+                        <h4 className="text-neutral-300 font-semibold mb-2">
                           Targeting
                         </h4>
                         <div className="space-y-1 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-cyber-400">Audience:</span>
-                            <span className="text-cyber-100">
+                            <span className="text-neutral-500">Audience:</span>
+                            <span className="text-white">
                               {form.targetAudience}
                             </span>
                           </div>
                           {form.followerRange && (
                             <div className="flex justify-between">
-                              <span className="text-cyber-400">
+                              <span className="text-neutral-500">
                                 Follower Range:
                               </span>
-                              <span className="text-cyber-100">
+                              <span className="text-white">
                                 {form.followerRange}
                               </span>
                             </div>
@@ -880,7 +880,7 @@ export function CreateCampaignModalDetailed({
               variant="outline"
               onClick={() => setStep(Math.max(1, step - 1))}
               disabled={step === 1}
-              className="border-cyber-500 text-cyber-300 hover:bg-dark-600"
+              className="border-neutral-600 text-neutral-300 hover:bg-neutral-800"
             >
               Previous
             </Button>
@@ -889,7 +889,7 @@ export function CreateCampaignModalDetailed({
               <Button
                 variant="outline"
                 onClick={onClose}
-                className="border-cyber-500 text-cyber-300 hover:bg-dark-600"
+                className="border-neutral-600 text-neutral-300 hover:bg-neutral-800"
               >
                 Cancel
               </Button>
@@ -897,7 +897,7 @@ export function CreateCampaignModalDetailed({
               {step < 5 ? (
                 <Button
                   onClick={() => setStep(step + 1)}
-                  className="bg-cyber-500 hover:bg-cyber-600 text-white"
+                  className="bg-orange-500 hover:bg-orange-600 text-white"
                 >
                   Next
                 </Button>

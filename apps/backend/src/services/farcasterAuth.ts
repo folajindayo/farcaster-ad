@@ -21,7 +21,8 @@ export const verifyFarcasterAuth = async (
   displayName?: string,
   pfpUrl?: string,
   custody?: string,
-  verifications?: string[]
+  verifications?: string[],
+  role?: 'advertiser' | 'host'
 ) => {
   try {
     console.log('Verifying Farcaster auth for FID:', fid);
@@ -55,9 +56,10 @@ export const verifyFarcasterAuth = async (
         username: username || `user_${fid}`,
         displayName: displayName || `User ${fid}`,
         pfpUrl: pfpUrl || '',
-        role: 'host', // Default role is host
+        role: role || 'advertiser', // Use provided role or default to advertiser
         isOptedIn: false, // Not opted in by default
       });
+      console.log(`✅ Created new user with role: ${role || 'advertiser'}`);
     } else {
       // Update existing user with latest Farcaster data
       if (username) user.username = username;

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import RoleBasedDashboard from '@/components/role-based/RoleBasedDashboard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
@@ -658,19 +659,40 @@ export default function FarcasterAdDashboard() {
     'advertiser'
   );
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const router = useRouter();
 
   // In a real app, this would come from authentication context
   useEffect(() => {
     // Simulate role detection - in real app, get from user context
     if (typeof window !== 'undefined') {
-      const role =
-        (localStorage.getItem('userRole') as
-          | 'advertiser'
-          | 'host'
-          | 'operator') || 'advertiser';
-      setUserRole(role);
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          const userData = JSON.parse(userStr);
+          const role = userData.role as 'advertiser' | 'host' | 'operator';
+          setUserRole(role);
+          
+          // Redirect hosts to dedicated host dashboard
+          if (role === 'host') {
+            console.log('🏠 Redirecting host to dedicated dashboard...');
+            router.push('/host/dashboard');
+            return;
+          }
+        } catch (e) {
+          console.error('Error parsing user data:', e);
+        }
+      }
     }
-  }, []);
+  }, [router]);
+
+  // Don't render anything for hosts (they're being redirected)
+  if (userRole === 'host') {
+    return (
+      <div className="flex items-center justify-center h-screen bg-neutral-900">
+        <div className="text-white">Redirecting to Host Dashboard...</div>
+      </div>
+    );
+  }
 
   return (
     <ProtectedRoute>

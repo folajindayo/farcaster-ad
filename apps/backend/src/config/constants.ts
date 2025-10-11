@@ -1,0 +1,194 @@
+/**
+ * Application Constants
+ * Centralized configuration to avoid magic numbers throughout the codebase
+ */
+
+export const PLATFORM = {
+  DEFAULT_FEE_PERCENTAGE: 5,
+  MIN_FEE_PERCENTAGE: 0,
+  MAX_FEE_PERCENTAGE: 20,
+} as const;
+
+export const CAMPAIGN = {
+  DEFAULT_CPM: 5.0, // $5 CPM
+  MIN_CPM: 0.1,
+  MAX_CPM: 100.0,
+  MIN_BUDGET: 10, // $10 minimum
+  MAX_BUDGET: 1000000, // $1M maximum
+  MIN_DURATION_DAYS: 1,
+  MAX_DURATION_DAYS: 365,
+} as const;
+
+export const HOST = {
+  DEFAULT_MIN_CPM: 0.5,
+  DEFAULT_MAX_ADS_PER_DAY_BANNER: 10,
+  DEFAULT_MAX_ADS_PER_DAY_OTHER: 5,
+  MIN_REPUTATION_SCORE: 0,
+  MAX_REPUTATION_SCORE: 100,
+  REPUTATION_FRAUD_PENALTY: 10,
+  REPUTATION_WEIGHTS: {
+    QUALITY: 0.5,
+    RESPONSE_RATE: 0.3,
+    FRAUD_PENALTY: 0.2,
+  },
+  SUSPENSION_THRESHOLD: 20,
+  WELCOME_BONUS_IMPRESSIONS: 10,
+  REFERRAL_BONUS_IMPRESSIONS: 100,
+  REFERRAL_CODE_LENGTH: 9,
+} as const;
+
+export const PAYOUT = {
+  INTERVAL_MS: 3600000, // 1 hour in milliseconds
+  INTERVAL_MINUTES: 60,
+  EARNINGS_PER_IMPRESSION: 0.001, // Mock calculation
+  ESTIMATED_EARNINGS_MULTIPLIER: 0.95, // After platform fee
+} as const;
+
+export const FRAUD_DETECTION = {
+  MAX_IMPRESSIONS_PER_MINUTE: 100,
+  DETECTION_WINDOW_MS: 60000, // 1 minute
+  MIN_DWELL_TIME_MS: 1000, // 1 second
+  MAX_CTR_THRESHOLD: 50, // 50% CTR is suspicious
+} as const;
+
+export const PAGINATION = {
+  DEFAULT_PAGE: 1,
+  DEFAULT_LIMIT: 20,
+  MAX_LIMIT: 100,
+} as const;
+
+export const VALIDATION = {
+  ADDRESS_REGEX: /^0x[a-fA-F0-9]{40}$/,
+  USERNAME_MIN_LENGTH: 3,
+  USERNAME_MAX_LENGTH: 50,
+  CAMPAIGN_TITLE_MIN_LENGTH: 3,
+  CAMPAIGN_TITLE_MAX_LENGTH: 200,
+  CAMPAIGN_DESC_MAX_LENGTH: 2000,
+} as const;
+
+export const FILE_UPLOAD = {
+  MAX_SIZE_BYTES: 5 * 1024 * 1024, // 5MB
+  ALLOWED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'],
+  ALLOWED_EXTENSIONS: ['.jpg', '.jpeg', '.png', '.webp', '.svg'],
+} as const;
+
+export const CACHE = {
+  DEFAULT_TTL_SECONDS: 300, // 5 minutes
+  CAMPAIGN_LIST_TTL: 60, // 1 minute
+  HOST_PROFILE_TTL: 600, // 10 minutes
+  EARNINGS_TTL: 30, // 30 seconds
+} as const;
+
+export const RATE_LIMIT = {
+  WINDOW_MS: 15 * 60 * 1000, // 15 minutes
+  MAX_REQUESTS: 100,
+  MAX_FILE_UPLOADS_PER_HOUR: 20,
+  MAX_CAMPAIGN_CREATES_PER_DAY: 10,
+} as const;
+
+export const SLOT_TYPES = {
+  BANNER: 'banner',
+  PINNED_CAST: 'pinned_cast',
+  FRAME: 'frame',
+} as const;
+
+export const STATUS = {
+  CAMPAIGN: {
+    DRAFT: 'draft',
+    PENDING: 'pending',
+    ACTIVE: 'active',
+    PAUSED: 'paused',
+    COMPLETED: 'completed',
+    CANCELLED: 'cancelled',
+  },
+  HOST: {
+    ACTIVE: 'active',
+    PAUSED: 'paused',
+    SUSPENDED: 'suspended',
+    INACTIVE: 'inactive',
+  },
+  EPOCH: {
+    PENDING: 'pending',
+    READY: 'ready',
+    SUBMITTED: 'submitted',
+    DISTRIBUTED: 'distributed',
+    FAILED: 'failed',
+  },
+  PLACEMENT: {
+    ACTIVE: 'active',
+    INACTIVE: 'inactive',
+    COMPLETED: 'completed',
+  },
+} as const;
+
+export const HTTP_STATUS = {
+  OK: 200,
+  CREATED: 201,
+  ACCEPTED: 202,
+  NO_CONTENT: 204,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+  CONFLICT: 409,
+  UNPROCESSABLE_ENTITY: 422,
+  TOO_MANY_REQUESTS: 429,
+  INTERNAL_SERVER_ERROR: 500,
+  SERVICE_UNAVAILABLE: 503,
+} as const;
+
+export const ERROR_CODES = {
+  // Authentication & Authorization
+  AUTH_INVALID_TOKEN: 'AUTH_INVALID_TOKEN',
+  AUTH_TOKEN_EXPIRED: 'AUTH_TOKEN_EXPIRED',
+  AUTH_INSUFFICIENT_PERMISSIONS: 'AUTH_INSUFFICIENT_PERMISSIONS',
+  AUTH_FARCASTER_VERIFICATION_FAILED: 'AUTH_FARCASTER_VERIFICATION_FAILED',
+  
+  // Validation
+  VALIDATION_INVALID_INPUT: 'VALIDATION_INVALID_INPUT',
+  VALIDATION_MISSING_REQUIRED_FIELD: 'VALIDATION_MISSING_REQUIRED_FIELD',
+  VALIDATION_INVALID_ADDRESS: 'VALIDATION_INVALID_ADDRESS',
+  VALIDATION_INVALID_AMOUNT: 'VALIDATION_INVALID_AMOUNT',
+  
+  // Resources
+  RESOURCE_NOT_FOUND: 'RESOURCE_NOT_FOUND',
+  RESOURCE_ALREADY_EXISTS: 'RESOURCE_ALREADY_EXISTS',
+  RESOURCE_CONFLICT: 'RESOURCE_CONFLICT',
+  
+  // Campaign
+  CAMPAIGN_INSUFFICIENT_BUDGET: 'CAMPAIGN_INSUFFICIENT_BUDGET',
+  CAMPAIGN_ALREADY_ACTIVE: 'CAMPAIGN_ALREADY_ACTIVE',
+  CAMPAIGN_NOT_ACTIVE: 'CAMPAIGN_NOT_ACTIVE',
+  CAMPAIGN_EXPIRED: 'CAMPAIGN_EXPIRED',
+  
+  // Host
+  HOST_NOT_OPTED_IN: 'HOST_NOT_OPTED_IN',
+  HOST_SUSPENDED: 'HOST_SUSPENDED',
+  HOST_SLOT_UNAVAILABLE: 'HOST_SLOT_UNAVAILABLE',
+  
+  // Payout
+  PAYOUT_ALREADY_CLAIMED: 'PAYOUT_ALREADY_CLAIMED',
+  PAYOUT_INVALID_PROOF: 'PAYOUT_INVALID_PROOF',
+  PAYOUT_INSUFFICIENT_FUNDS: 'PAYOUT_INSUFFICIENT_FUNDS',
+  
+  // Fraud
+  FRAUD_SUSPICIOUS_ACTIVITY: 'FRAUD_SUSPICIOUS_ACTIVITY',
+  FRAUD_RATE_LIMIT_EXCEEDED: 'FRAUD_RATE_LIMIT_EXCEEDED',
+  
+  // System
+  SYSTEM_DATABASE_ERROR: 'SYSTEM_DATABASE_ERROR',
+  SYSTEM_BLOCKCHAIN_ERROR: 'SYSTEM_BLOCKCHAIN_ERROR',
+  SYSTEM_EXTERNAL_SERVICE_ERROR: 'SYSTEM_EXTERNAL_SERVICE_ERROR',
+  SYSTEM_INTERNAL_ERROR: 'SYSTEM_INTERNAL_ERROR',
+} as const;
+
+// Type exports for type safety
+export type SlotType = typeof SLOT_TYPES[keyof typeof SLOT_TYPES];
+export type CampaignStatus = typeof STATUS.CAMPAIGN[keyof typeof STATUS.CAMPAIGN];
+export type HostStatus = typeof STATUS.HOST[keyof typeof STATUS.HOST];
+export type EpochStatus = typeof STATUS.EPOCH[keyof typeof STATUS.EPOCH];
+export type PlacementStatus = typeof STATUS.PLACEMENT[keyof typeof STATUS.PLACEMENT];
+export type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES];
+
+
+
